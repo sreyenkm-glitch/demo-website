@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import { ACCENTS, getSettings } from "@/lib/settings";
 import "./globals.css";
 
+// Every page reads the database (settings, session), so never pre-render at build time.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
   return {
