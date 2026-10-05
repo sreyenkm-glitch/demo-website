@@ -29,8 +29,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </div>
       {isEphemeralDemo() && (
         <div className="rise-3 card flat mt-32 small" style={{ borderColor: "var(--bad)" }} role="note">
-          <b>No database connected.</b> This deployment keeps data on each server separately, so you&apos;ll be signed out
-          between pages and changes won&apos;t stick. Connect a Turso database in Vercel (Storage → Turso) and redeploy.
+          <b>Demo mode — no database connected.</b> You can sign in and look around, but anything you enter may disappear.
+          Connect a Turso database in Vercel (Storage → Turso) and redeploy before your team uses it.
         </div>
       )}
       {showDemo && (

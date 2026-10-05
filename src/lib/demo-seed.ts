@@ -6,7 +6,7 @@ import { db, schema } from "@/db";
 import { hashPassword } from "./auth-hash";
 import { addDays, isoWeek, startOfWeek, toYmd, zonedToIso } from "./dates";
 import { PEOPLE, REVIEW_COMMENTS } from "./demo-content";
-import { newId } from "./ids";
+import { createHash } from "node:crypto";
 import { overallScore } from "./scoring";
 import { DEFAULT_QUESTIONS, DEFAULT_RATING_CATEGORIES, DEFAULT_SETTINGS } from "./settings";
 
@@ -22,7 +22,15 @@ function mulberry32(a: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const rand = mulberry32(40);
+let rand = mulberry32(40);
+
+// Deterministic ids: every server that seeds an empty database produces identical rows, so links
+// and sign-ins keep working when a demo deployment spreads requests across several servers.
+let idCounter = 0;
+function newId() {
+  const h = createHash("sha256").update(`obsa-demo:${idCounter++}`).digest("hex");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
 const pick = <T,>(arr: T[], i: number) => arr[((i % arr.length) + arr.length) % arr.length];
 const clamp = (n: number) => Math.max(1, Math.min(10, Math.round(n)));
 
@@ -62,6 +70,8 @@ async function wipe() {
 }
 
 export async function seedDemo() {
+  rand = mulberry32(40);
+  idCounter = 0;
   await wipe();
 
   // Settings + rating categories
