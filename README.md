@@ -43,8 +43,9 @@ the connected repo is enough — no project settings needed.
 1. Out of the box you get a working **demo**: on first start the app creates its tables and loads the demo team.
    Without a database URL it stores data in the server's temporary folder, so data **resets** whenever Vercel
    recycles the server, and sign-ins may drop. Don't use it for real data like this.
-2. For real use, add a persistent database: create a free [Turso](https://turso.tech) database and add
-   `DATABASE_URL` (`libsql://…`) and `DATABASE_AUTH_TOKEN` under **Settings → Environment Variables**, then redeploy.
+2. For real use, add a shared database. Easiest: in Vercel open **Storage → Create Database → Turso**, connect it
+   to this project, then redeploy — the app reads the `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` it sets.
+   (Or set `DATABASE_URL` + `DATABASE_AUTH_TOKEN` yourself under **Settings → Environment Variables**.)
    On first start it migrates and loads the demo team; set `SEED_DEMO=0` to start empty instead.
 
 Other hosts: `npm run build && npm start` with `DATABASE_URL` pointing at Turso or a SQLite file on a persistent disk.

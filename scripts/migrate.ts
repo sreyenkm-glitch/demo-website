@@ -3,7 +3,7 @@ import path from "node:path";
 
 async function main() {
   const fresh = process.argv.includes("--fresh");
-  const url = process.env.DATABASE_URL || "file:./data/obsa.db";
+  const url = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || "file:./data/obsa.db";
   if (fresh && url.startsWith("file:")) {
     const file = path.resolve(url.replace(/^file:/, ""));
     for (const f of [file, `${file}-wal`, `${file}-shm`, `${file}-journal`]) if (existsSync(f)) rmSync(f);
