@@ -17,7 +17,6 @@ Last week's plan automatically becomes this week's accountability check.
 ## Run it
 
 ```bash
-cd weekly-reset
 npm install
 cp .env.example .env          # optional — defaults to file:./data/obsa.db
 npm run db:reset              # create schema + seed demo data (wipes local DB)
@@ -36,16 +35,22 @@ Demo logins (password `reset-day`):
 Also: `zoe@`, `arjun@`, `tara@`, `leo@obsa.team`. Seed data is generated relative to today: the current calendar week plus five past weeks.
 Set `HIDE_DEMO_LOGINS=1` to hide the demo hint on the sign-in page.
 
-### Production
+### Deploy on Vercel
 
-```bash
-npm run build && npm start
-```
+The app lives at the repository root and `vercel.json` tells Vercel it's a Next.js app, so pushing to
+the connected repo is enough — no project settings needed.
 
-- Use a persistent DB: a Turso URL (`DATABASE_URL=libsql://…`, `DATABASE_AUTH_TOKEN=…`) or a mounted volume for the SQLite file.
-  Serverless hosts (e.g. Vercel) need Turso — their filesystem isn't persistent.
-- Run `npm run db:migrate` on deploy; `npm run db:seed` only if you want demo data (it **wipes** data).
-- Reminders: call `GET /api/cron/reminders` hourly with `Authorization: Bearer $CRON_SECRET`.
+1. Out of the box you get a working **demo**: on first start the app creates its tables and loads the demo team.
+   Without a database URL it stores data in the server's temporary folder, so data **resets** whenever Vercel
+   recycles the server, and sign-ins may drop. Don't use it for real data like this.
+2. For real use, add a shared database. Easiest: in Vercel open **Storage → Create Database → Turso**, connect it
+   to this project, then redeploy — the app reads the `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` it sets.
+   (Or set `DATABASE_URL` + `DATABASE_AUTH_TOKEN` yourself under **Settings → Environment Variables**.)
+   On first start it migrates and loads the demo team; set `SEED_DEMO=0` to start empty instead.
+
+Other hosts: `npm run build && npm start` with `DATABASE_URL` pointing at Turso or a SQLite file on a persistent disk.
+Migrations run automatically at startup (`src/instrumentation.ts`).
+Reminders: call `GET /api/cron/reminders` hourly with `Authorization: Bearer $CRON_SECRET`.
 
 ## How the loop works
 
@@ -77,7 +82,7 @@ src/lib/themes.ts         recurring-theme extraction for misses/learnings/priori
 src/lib/reminders.ts      reminder channels (in-app today; plug in email/push via ReminderChannel)
 src/lib/export.ts         report tables + formatters (CSV today; add PDF via Formatter)
 src/app/(app)/…           pages; src/app/actions/… server actions
-scripts/seed.ts           realistic OBSA demo data
+src/lib/demo-seed.ts      realistic OBSA demo data (also loaded automatically into an empty DB)
 tests/weekly-loop.spec.ts end-to-end test of the whole loop (member + admin, mobile viewport)
 ```
 
@@ -87,3 +92,7 @@ tests/weekly-loop.spec.ts end-to-end test of the whole loop (member + admin, mob
 npm run typecheck
 npm run test:e2e   # boots a fresh seeded DB (data/e2e.db) on :3100 and runs the full loop in a mobile viewport
 ```
+
+## Old website
+
+The previous static site that lived in this repo is kept unchanged in `legacy-site/`.

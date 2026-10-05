@@ -1,14 +1,14 @@
 /**
  * Seeds OBSA demo data: 8 people, 5 past weeks + the current week, with real carry-forward lineages.
- * Safe to re-run — it wipes and rebuilds everything.  Usage: npm run db:seed  (or db:reset for a fresh file)
+ * Wipes and rebuilds everything. Used by `npm run db:seed` and by first-boot bootstrap on an empty DB.
  */
-import { db, schema } from "../src/db";
-import { hashPassword } from "../src/lib/auth-hash";
-import { addDays, isoWeek, startOfWeek, toYmd, zonedToIso } from "../src/lib/dates";
-import { newId } from "../src/lib/ids";
-import { overallScore } from "../src/lib/scoring";
-import { DEFAULT_QUESTIONS, DEFAULT_RATING_CATEGORIES, DEFAULT_SETTINGS } from "../src/lib/settings";
-import { PEOPLE, REVIEW_COMMENTS, type Person } from "./seed-content";
+import { db, schema } from "@/db";
+import { hashPassword } from "./auth-hash";
+import { addDays, isoWeek, startOfWeek, toYmd, zonedToIso } from "./dates";
+import { PEOPLE, REVIEW_COMMENTS } from "./demo-content";
+import { newId } from "./ids";
+import { overallScore } from "./scoring";
+import { DEFAULT_QUESTIONS, DEFAULT_RATING_CATEGORIES, DEFAULT_SETTINGS } from "./settings";
 
 export const DEMO_PASSWORD = "reset-day";
 
@@ -61,7 +61,7 @@ async function wipe() {
     await db.delete(t);
 }
 
-async function main() {
+export async function seedDemo() {
   await wipe();
 
   // Settings + rating categories
@@ -332,10 +332,3 @@ async function main() {
   console.log(`✓ seeded ${PEOPLE.length} people × ${weekRows.length} weeks (current: week ${current.weekNumber}, ${current.startDate} → ${current.endDate})`);
   console.log(`  sign in as rhea@obsa.team (admin) or kabir@obsa.team (member) — password: ${DEMO_PASSWORD}`);
 }
-
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
-
-export type { Person };

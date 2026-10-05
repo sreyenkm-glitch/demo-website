@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { isEphemeralDemo } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
 import { getSettings } from "@/lib/settings";
 import { LoginForm } from "./login-form";
@@ -26,6 +27,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="rise-2 mt-48">
         <LoginForm next={next ?? "/"} />
       </div>
+      {isEphemeralDemo() && (
+        <div className="rise-3 card flat mt-32 small" style={{ borderColor: "var(--bad)" }} role="note">
+          <b>No database connected.</b> This deployment keeps data on each server separately, so you&apos;ll be signed out
+          between pages and changes won&apos;t stick. Connect a Turso database in Vercel (Storage → Turso) and redeploy.
+        </div>
+      )}
       {showDemo && (
         <div className="rise-3 panel mt-32 small">
           <div className="eyebrow">Demo logins · password <span className="mono">reset-day</span></div>
