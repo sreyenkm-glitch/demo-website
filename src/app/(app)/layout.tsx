@@ -5,7 +5,7 @@ import { markNotificationsRead } from "@/app/actions/notifications";
 import { Avatar } from "@/components/ui";
 import { BottomNav, TopNav } from "@/components/nav";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { db, schema } from "@/db";
+import { db, isEphemeralDemo, schema } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { timeAgo } from "@/lib/dates";
 import { getSettings } from "@/lib/settings";
@@ -22,6 +22,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = user.role === "admin";
   return (
     <>
+      {isEphemeralDemo() && (
+        <div role="note" style={{ background: "var(--bad-bg)", color: "var(--bad)", fontSize: 13, fontWeight: 600, textAlign: "center", padding: "6px 16px" }}>
+          Demo mode: no database connected — changes may not be saved.
+        </div>
+      )}
       <header className="topbar">
         <div className="container topbar-inner">
           <Link href="/" className="brand" aria-label={`${settings.brand.name} home`}>
