@@ -96,3 +96,9 @@ npm run test:e2e   # boots a fresh seeded DB (data/e2e.db) on :3100 and runs the
 ## Old website
 
 The previous static site that lived in this repo is kept unchanged in `legacy-site/`.
+
+## OBSA × Smytten clickable demo
+
+A self-contained, front-end-only demo of OBSA's social layer inside the Smytten app lives at
+[`public/smytten-demo/index.html`](public/smytten-demo/index.html). Open the file directly in a browser, or visit
+`/smytten-demo` on the deployed site (no login needed). All data is mock data; there is no backend.

@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OBSA × Smytten Demo</title>
+<meta name="description" content="Clickable demo of OBSA's social layer inside the Smytten app. All data is mock data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FAF6F1; --ink:#1E1E24; --muted:#6B6B73; --orange:#F24E23; --navy:#111827;
+  --yellow:#FDB515; --teal:#17A2B0; --teal-ink:#0E7C87; --tint:#FDE8E1; --line:#E8E2DA;
+  --white:#fff; --grey:#EEEAE4; --grey-ink:#5A5A62; --orange-ink:#D63E15;
+  --font:"Poppins",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --fast:220ms; --ease:cubic-bezier(.2,.7,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--cream);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--teal-ink);outline-offset:2px}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Top bar ---------- */
+.topbar{height:64px;display:flex;align-items:center;gap:20px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--cream)}
+.lockup{display:flex;align-items:center;gap:10px;flex:none}
+.wordmark{font-weight:700;font-size:26px;letter-spacing:-.5px;color:var(--ink)}
+.lockup .x{color:#9a9aa2;font-size:16px}
+.smy-circle{width:52px;height:52px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:600;font-size:10.5px;letter-spacing:.2px}
+.smy-circle.sm{width:34px;height:34px;font-size:7px}
+.seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:4px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:0 14px;min-height:38px;border-radius:3px;font-weight:500;color:var(--muted);transition:background var(--fast),color var(--fast)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.topbar .seg{margin-left:auto}
+.topbar .tag{font-size:12px;color:var(--muted)}
+
+/* ---------- Layout ---------- */
+.layout{display:grid;grid-template-columns:1fr 380px;height:calc(100vh - 64px - 8px);height:calc(100dvh - 64px - 8px)}
+.stage{overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+.footer-bar{position:fixed;left:0;right:0;bottom:0;height:8px;display:grid;grid-template-columns:1fr 1fr 1fr;z-index:60}
+.footer-bar span:nth-child(1){background:var(--orange)}.footer-bar span:nth-child(2){background:var(--yellow)}.footer-bar span:nth-child(3){background:var(--teal)}
+
+/* ---------- Deck typography ---------- */
+.label{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--teal-ink);margin:0 0 4px}
+.title{font-weight:700;font-size:22px;line-height:1.2;margin:0;color:var(--ink)}
+.title em{font-style:normal;color:var(--orange)}
+.bar{width:60px;height:5px;background:var(--teal);margin:10px 0 16px}
+.h3{font-weight:700;font-size:15px;margin:0 0 8px}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.caption{font-style:italic;font-size:11.5px;color:var(--muted);margin:14px 0 4px}
+
+/* ---------- Cards ---------- */
+.card{background:#fff;border:1px solid var(--line);border-radius:4px;border-left:4px solid var(--orange);padding:14px;margin-bottom:12px;position:relative}
+.card.c-teal{border-left-color:var(--teal)}.card.c-yellow{border-left-color:var(--yellow)}.card.c-navy{border-left-color:var(--navy)}
+.hbox{background:var(--tint);color:var(--orange-ink);font-weight:700;border-radius:4px;padding:10px 12px;font-size:13px}
+.chip-ex{display:inline-flex;align-items:center;gap:4px;background:var(--grey);color:var(--grey-ink);font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:3px;white-space:nowrap}
+.chip-tier{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:3px;background:var(--tint);color:var(--orange-ink)}
+.badge-tried{display:inline-flex;align-items:center;gap:3px;background:var(--teal-ink);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;vertical-align:1px}
+.pending-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--teal-ink)}
+.pending-tag::before{content:"";width:10px;height:10px;border-radius:50%;border:2px solid var(--teal);border-right-color:transparent;animation:spin .8s linear infinite}
+.ok-tag{font-size:11px;font-weight:600;color:var(--teal-ink)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Buttons ---------- */
+.btn{min-height:44px;padding:0 14px;border-radius:4px;font-weight:600;font-size:13px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform var(--fast),background var(--fast),box-shadow var(--fast);line-height:1.15;text-align:center}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn.teal{border-color:var(--teal);color:var(--teal-ink)}
+.btn.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.ghost{border-color:var(--line)}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.sm{min-height:36px;font-size:12px;padding:0 10px}
+.mini{min-height:44px;padding:0 10px;border:1px solid var(--line);background:#fff;border-radius:4px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
+.mini.on{background:var(--tint);border-color:var(--orange);color:var(--orange-ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border:1px solid var(--line);background:#fff;border-radius:22px;font-size:12.5px;font-weight:500;transition:background var(--fast),border-color var(--fast)}
+.chip.on{background:var(--tint);border-color:var(--orange);color:var(--orange-ink);font-weight:600}
+.chip.f.on{background:#E3F4F6;border-color:var(--teal);color:var(--teal-ink)}
+.input,.ta{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff;padding:10px 12px;min-height:44px}
+.ta{min-height:76px;resize:vertical}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1;min-width:0}
+
+/* ---------- Phone ---------- */
+.phone{width:390px;height:min(844px, calc(100vh - 112px));height:min(844px, calc(100dvh - 112px));min-height:560px;background:var(--navy);border-radius:48px;padding:11px;box-shadow:0 30px 60px -30px rgba(17,24,39,.45),0 0 0 1px #0b0f19;flex:none}
+.screen-wrap{position:relative;height:100%;background:var(--cream);border-radius:38px;overflow:hidden;display:flex;flex-direction:column}
+.statusbar{height:40px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 26px 0 30px;font-size:13px;font-weight:600}
+.statusbar .icons{display:flex;gap:5px;align-items:center}
+.appbar{flex:none;display:flex;align-items:center;gap:10px;padding:6px 14px 8px;border-bottom:1px solid var(--line);background:var(--cream)}
+.appbar .brand{font-weight:700;font-size:16px;color:var(--navy);letter-spacing:-.2px}
+.wallet-chip{margin-left:auto;display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:18px;background:var(--navy);color:#fff;border:0;font-size:12px;font-weight:600;transition:transform var(--fast)}
+.wallet-chip .dot{width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFD45E,var(--yellow) 55%,#E19B00)}
+.wallet-chip.bump{animation:bump .45s var(--ease)}
+@keyframes bump{40%{transform:scale(1.12)}}
+.modebar{flex:none;display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:var(--muted);background:#fff;border-bottom:1px solid var(--line)}
+.modebar .seg{margin-left:auto}
+.modebar .seg button{min-height:32px;font-size:12px;padding:0 10px}
+.modebar .seg button[aria-pressed="true"]{background:var(--teal-ink)}
+.scroller{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 16px 24px;overscroll-behavior:contain}
+.screen-anim{animation:fadeIn var(--fast) var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:#fff;padding:2px 4px 14px}
+.tabs button{border:0;background:transparent;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10.5px;font-weight:500;color:var(--muted);border-radius:6px}
+.tabs button[aria-current="page"]{color:var(--orange-ink);font-weight:700}
+.tabs svg{width:22px;height:22px}
+
+/* product */
+.prod{display:flex;gap:12px;align-items:flex-start}
+.prod .tile{width:84px;height:84px;flex:none}
+.prod h2{font-size:16px;margin:0;font-weight:700;line-height:1.25}
+.ring-wrap{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--muted)}
+.ring{width:34px;height:34px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:4}
+.ring .bg{stroke:var(--grey)}.ring .fg{stroke:var(--orange);stroke-linecap:round;transition:stroke-dashoffset .9s linear}
+.ring-wrap.done .fg{stroke:var(--teal)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:4px;padding:12px;border-left:4px solid var(--teal)}
+.stat:nth-child(2){border-left-color:var(--orange)}
+.stat b{display:block;font-size:22px;font-weight:700;line-height:1.1}
+.stat > span{font-size:12px;color:var(--muted)}
+.live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--orange);margin-right:6px;vertical-align:2px;box-shadow:0 0 0 0 rgba(242,78,35,.5);animation:live 1.8s infinite}
+@keyframes live{70%{box-shadow:0 0 0 7px rgba(242,78,35,0)}100%{box-shadow:0 0 0 0 rgba(242,78,35,0)}}
+#liveCount{display:inline-block;transition:transform var(--fast)}
+#liveCount.tick{transform:translateY(-2px)}
+.actions3{display:grid;grid-template-columns:1fr 1.15fr 1.35fr;gap:6px;margin-bottom:16px}
+.actions3 .btn{padding:0 6px;font-size:12px}
+.sec{margin:20px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sec h3{font-size:15px;font-weight:700;margin:0}
+.counts{font-size:11px;color:var(--muted)}
+.tot{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.tot .opt{border:1px solid var(--line);border-radius:4px;padding:10px;text-align:center;background:#fff;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.tot .opt .tile{width:54px;height:54px}
+.tot .vs{align-self:center;font-weight:700;color:var(--orange)}
+.vote-bar{height:8px;background:var(--grey);border-radius:4px;overflow:hidden;width:100%}
+.vote-bar i{display:block;height:100%;background:var(--teal)}
+.qa{border-top:1px solid var(--line);padding:12px 0}
+.qa:first-of-type{border-top:0;padding-top:0}
+.qa .q{font-weight:600;font-size:13.5px;margin-bottom:6px}
+.qa .a{font-size:13px;margin:6px 0 0;padding-left:10px;border-left:2px solid var(--line)}
+.who{font-weight:600;font-size:12px}
+.rev{border-top:1px solid var(--line);padding:12px 0}
+.rev:first-of-type{border-top:0;padding-top:0}
+.stars{color:var(--yellow);letter-spacing:1px;font-size:13px}
+.rev p{margin:6px 0 8px;font-size:13px}
+.rev .row .mini{flex:1;justify-content:center}
+.reply-box{margin-top:8px;font-size:12.5px;background:var(--cream);border-radius:4px;padding:8px 10px}
+.newmember{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.av0{background:var(--orange)}.av1{background:var(--teal-ink)}.av2{background:#C58A00}.av3{background:var(--navy)}.av4{background:#8A4FBF}
+.wa{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#1F9D55;color:#fff;font-size:10px;font-weight:700}
+
+/* sheets */
+.backdrop{position:absolute;inset:0;background:rgba(17,24,39,.42);opacity:0;pointer-events:none;transition:opacity var(--fast);z-index:20}
+.backdrop.show{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:82%;background:var(--cream);border-radius:18px 18px 0 0;transform:translateY(102%);transition:transform 260ms var(--ease);z-index:21;display:flex;flex-direction:column}
+.sheet.show{transform:none}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:#d6cfc5;margin:8px auto 0}
+.sheet .sh-head{display:flex;align-items:center;gap:8px;padding:10px 16px 6px}
+.sheet .sh-head .title{font-size:18px}
+.sheet .close{margin-left:auto;width:44px;height:44px;border:0;background:transparent;font-size:22px;color:var(--muted);border-radius:4px}
+.sheet .sh-body{overflow-y:auto;padding:4px 16px 22px}
+.person{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.person:first-child{border-top:0}
+.person .meta{flex:1;min-width:0;font-size:12.5px}
+.person .meta b{font-size:13.5px}
+.person .btn{flex:none}
+.person-reply{font-size:12.5px;background:#fff;border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:4px;padding:8px 10px;margin:-2px 0 10px 46px}
+.photo-ph{height:92px;border:1.5px dashed var(--line);border-radius:4px;display:grid;place-items:center;color:var(--muted);font-size:12px;background:#fff;width:100%}
+.photo-ph.has{border-style:solid;border-color:var(--teal);background:linear-gradient(135deg,#E3F4F6,#fff);color:var(--teal-ink);font-weight:600}
+
+/* toasts + coins */
+.toasts{position:absolute;top:96px;left:12px;right:12px;z-index:40;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:4px;padding:10px 12px;box-shadow:0 10px 24px -12px rgba(17,24,39,.35);font-size:12.5px;animation:toastIn 240ms var(--ease);pointer-events:auto}
+.toast b{display:block;font-size:13.5px}
+.toast.pending{border-left-color:var(--teal)}.toast.limit{border-left-color:var(--yellow)}.toast.info{border-left-color:var(--navy)}.toast.existing{border-left-color:#A8A39B}
+.toast.out{opacity:0;transform:translateY(-6px);transition:all 220ms}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}}
+.coin{position:fixed;width:22px;height:22px;border-radius:50%;z-index:100;pointer-events:none;background:radial-gradient(circle at 35% 35%,#FFD45E,var(--yellow) 55%,#E19B00);box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform 720ms cubic-bezier(.5,-.2,.3,1),opacity 720ms}
+.coin.o{background:radial-gradient(circle at 35% 35%,#FF8A66,var(--orange) 60%,#C93A12)}
+
+/* highlight pulse */
+.hl{outline:3px solid var(--orange)!important;outline-offset:3px;border-radius:4px;animation:hl 1.4s ease-in-out infinite}
+@keyframes hl{50%{outline-color:rgba(242,78,35,.25);outline-offset:6px}}
+
+/* trial */
+.delivered{display:inline-flex;align-items:center;gap:6px;background:#E3F4F6;color:var(--teal-ink);font-weight:600;font-size:12px;border-radius:3px;padding:4px 9px}
+.starpick{display:flex;gap:2px}
+.starpick button{width:44px;height:44px;border:0;background:transparent;font-size:26px;color:#D8D2C8;padding:0}
+.starpick button.on{color:var(--yellow)}
+.slider{margin:10px 0}
+.slider label{display:flex;justify-content:space-between;font-size:12.5px;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--orange);min-height:32px}
+.locked{text-align:center;padding:28px 16px}
+.locked .lock{width:48px;height:48px;border-radius:50%;background:var(--tint);display:grid;place-items:center;margin:0 auto 10px;color:var(--orange)}
+.banner{display:flex;gap:8px;align-items:center;background:#fff;border:1px dashed var(--teal);border-radius:4px;padding:10px 12px;font-size:12.5px;margin-bottom:12px;color:var(--teal-ink);font-weight:500}
+
+/* buzz */
+.video{position:relative;aspect-ratio:9/14;border-radius:6px;overflow:hidden;background:linear-gradient(160deg,#1c2a44 0%,#111827 55%,#2a1a14 100%);color:#fff;margin-bottom:10px}
+.video .tube{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) rotate(-14deg);width:72px;height:150px}
+.video .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:68px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--orange)}
+.video .play svg{width:28px;height:28px;margin-left:4px}
+.video .vmeta{position:absolute;left:12px;right:12px;bottom:14px;font-size:12.5px}
+.video .vmeta b{font-size:14px}
+.video .prog{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.25)}
+.video .prog i{display:block;height:100%;width:0;background:var(--orange);transition:width .25s linear}
+.vacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+
+/* wallet */
+.balance{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.balance .card{margin:0}
+.balance b{display:block;font-size:34px;line-height:1.05;font-weight:700}
+.balance .card:first-child b{color:var(--orange)}
+.pbar{height:10px;background:var(--grey);border-radius:5px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--orange);border-radius:5px;transition:width 400ms var(--ease)}
+.pbar.teal i{background:var(--teal)}.pbar.yellow i{background:var(--yellow)}
+.convert{display:flex;align-items:center;justify-content:center;gap:10px;height:64px;font-weight:700}
+.convert .c{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700;background:radial-gradient(circle at 35% 35%,#FF8A66,var(--orange) 60%,#C93A12)}
+.convert .c.y{background:radial-gradient(circle at 35% 35%,#FFD45E,var(--yellow) 55%,#E19B00);color:var(--navy);width:44px;height:44px;font-size:12px}
+.convert .arrow{color:var(--muted)}
+.convert.play .c.b1{animation:merge1 1.1s var(--ease)}
+.convert.play .c.b2{animation:merge2 1.1s var(--ease)}
+.convert.play .c.y{animation:pop 1.1s var(--ease)}
+@keyframes merge1{0%{transform:none}45%{transform:translateX(22px) scale(.8);opacity:.6}60%{transform:translateX(70px) scale(.4);opacity:0}61%{transform:none;opacity:0}100%{opacity:1}}
+@keyframes merge2{0%{transform:none}45%{transform:translateX(-0px) scale(.8);opacity:.6}60%{transform:translateX(46px) scale(.4);opacity:0}61%{transform:none;opacity:0}100%{opacity:1}}
+@keyframes pop{0%,55%{transform:scale(.6);opacity:.4}75%{transform:scale(1.25);opacity:1}100%{transform:scale(1)}}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:12.5px}
+.hist li:first-child{border-top:0}
+.hist .n{font-weight:700;text-align:right;min-width:44px}
+.hist .n.bits{color:var(--orange-ink)}
+.capline{display:grid;grid-template-columns:1fr 92px 38px;gap:8px;align-items:center;font-size:12px;padding:5px 0}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+.kv:first-child{border-top:0}
+
+/* ---------- Dashboards ---------- */
+.dash{width:100%;max-width:1000px;padding:4px 4px 40px;animation:fadeIn var(--fast) var(--ease)}
+.dash .title{font-size:30px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.frow{display:grid;grid-template-columns:110px 1fr 84px;gap:10px;align-items:center;font-size:13px}
+.frow .track{height:22px;background:var(--grey);border-radius:3px;overflow:hidden}
+.frow .track i{display:block;height:100%;background:var(--navy);transition:width 400ms var(--ease)}
+.frow.obsa .track i{background:var(--orange)}
+.frow .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.live-delta{display:inline-block;margin-left:4px;font-size:10px;font-weight:700;color:var(--teal-ink)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0 16px}
+.flow .fc{background:#fff;border:1px solid var(--line);border-radius:4px;padding:7px 11px;font-size:12px;font-weight:600}
+.flow .fc.o{background:var(--tint);border-color:#F8C9B9;color:var(--orange-ink)}
+.flow .ar{color:var(--muted);font-size:12px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.hbar{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;font-size:13px;margin:8px 0}
+.hbar .track{height:16px;background:var(--grey);border-radius:3px;overflow:hidden}
+.hbar .track i{display:block;height:100%;background:var(--teal);transition:width 400ms var(--ease)}
+.hbar .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.qlist{margin:0;padding:0;list-style:none}
+.qlist li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:13px}
+.qlist li:first-child{border-top:0}
+.pulse-foot{margin-top:6px}
+table.econ{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;border:1px solid var(--line)}
+table.econ th,table.econ td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+table.econ th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:#FCFAF7;position:sticky;top:0}
+table.econ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.econ tr.grp td{background:var(--cream);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal-ink)}
+.table-wrap{overflow:auto;max-height:520px;border-radius:4px}
+.calc-out{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.calc-out .card{margin:0}
+.calc-out b{display:block;font-size:24px;font-weight:700;line-height:1.15}
+.calc-out .card:nth-child(1) b{color:var(--navy)}.calc-out .card:nth-child(2) b{color:var(--orange)}.calc-out .card:nth-child(3) b{color:var(--teal-ink)}
+
+/* ---------- Presenter ---------- */
+.presenter{border-left:1px solid var(--line);background:#fff;display:flex;flex-direction:column;min-height:0}
+.p-head{padding:20px 22px 0}
+.p-head .title{font-size:22px}
+.p-toggle{display:none}
+.p-body{flex:1;overflow-y:auto;padding:0 22px 20px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.steps button{width:100%;text-align:left;display:flex;gap:10px;align-items:flex-start;min-height:44px;padding:8px 10px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:4px;font-size:12.5px;color:var(--ink);transition:background var(--fast)}
+.steps button .num{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--grey);font-size:11px;font-weight:700}
+.steps button[aria-current="step"]{border-left-color:var(--orange);background:var(--tint)}
+.steps button[aria-current="step"] .num{background:var(--orange);color:#fff}
+.steps button.done .num{background:var(--teal-ink);color:#fff}
+.script{margin:14px 0}
+.script .hbox{font-size:15px;line-height:1.4}
+.p-nav{display:flex;gap:8px;margin-bottom:14px}
+.p-nav .btn{flex:1}
+.session{margin-top:16px}
+.session .kv b{font-variant-numeric:tabular-nums}
+
+.seg .short{display:none}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 860px){
+  body{overflow:hidden}
+  .topbar{height:52px;padding:0 10px;gap:8px}
+  .wordmark{font-size:20px}
+  .smy-circle{width:38px;height:38px;font-size:7.5px}
+  .topbar .tag{display:none}
+  .topbar .seg button{padding:0 8px;font-size:11.5px;min-height:34px}
+  .seg .long{display:none}
+  .seg .short{display:inline}
+  .presenter:not(.open) .p-body{display:none}
+  .p-toggle > span{min-width:0}
+  .p-toggle .s{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .layout{display:block;height:calc(100dvh - 52px)}
+  .stage{padding:0;height:calc(100dvh - 52px - 66px);display:block}
+  .phone{width:100%;height:100%;min-height:0;border-radius:0;padding:0;box-shadow:none}
+  .screen-wrap{border-radius:0}
+  .statusbar{display:none}
+  .toasts{top:84px}
+  .dash{padding:16px 14px 40px}
+  .dash .title{font-size:24px}
+  .grid2,.calc-out{grid-template-columns:1fr}
+  .frow{grid-template-columns:92px 1fr 66px;font-size:12px}
+  .hbar{grid-template-columns:120px 1fr 40px;font-size:12px}
+  .presenter{position:fixed;left:0;right:0;bottom:8px;z-index:50;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;box-shadow:0 -10px 30px -12px rgba(17,24,39,.3);max-height:66px;transition:max-height 280ms var(--ease);overflow:hidden}
+  .presenter.open{max-height:78dvh}
+  .p-toggle{display:flex;align-items:center;gap:8px;min-height:58px;padding:4px 12px;border:0;background:transparent;width:100%;text-align:left}
+  .p-toggle .t{font-weight:700;font-size:14px}
+  .p-toggle .s{font-size:12px;color:var(--muted)}
+  .p-toggle .chev{margin-left:auto;transition:transform var(--fast)}
+  .presenter.open .p-toggle .chev{transform:rotate(180deg)}
+  .p-head{display:none}
+  .presenter.open .p-head{display:block;padding-top:0}
+  .p-quick{display:flex!important}
+  .presenter.open .p-quick{display:none!important}
+}
+.p-quick{display:none}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="lockup" aria-label="obsa times smytten">
+    <span class="wordmark">obsa</span><span class="x">×</span><span class="smy-circle">smytten</span>
+  </div>
+  <span class="tag">Clickable demo · mock data</span>
+  <div class="seg" role="group" aria-label="Choose view">
+    <button data-a="view" data-v="app" aria-pressed="true"><span class="long">Smytten app</span><span class="short">App</span></button>
+    <button data-a="view" data-v="insights" aria-pressed="false"><span class="long">Brand insights</span><span class="short">Insights</span></button>
+    <button data-a="view" data-v="econ" aria-pressed="false"><span class="long">Smytten economics</span><span class="short">Economics</span></button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage" id="stage">
+    <div class="phone" id="phone">
+      <div class="screen-wrap">
+        <div class="statusbar" aria-hidden="true"><span>9:41</span>
+          <span class="icons"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"/><rect x="10" y="2" width="3" height="10" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3" fill="none" stroke="currentColor"/><rect x="2" y="2" width="17" height="8" rx="2" fill="currentColor"/><rect x="24" y="4" width="2" height="4" rx="1" fill="currentColor"/></svg></span>
+        </div>
+        <div class="appbar">
+          <span class="smy-circle sm" aria-hidden="true">smytten</span><span class="brand">Smytten</span>
+          <button class="wallet-chip" id="walletChip" data-a="tab" data-s="wallet" aria-label="Open wallet"><span class="dot"></span><span id="chipText">Bits 0 · Bucks 0</span></button>
+        </div>
+        <div class="modebar">
+          <span>View as:</span>
+          <div class="seg" role="group" aria-label="View as">
+            <button data-a="mode" data-m="shopper" aria-pressed="true">Shopper</button>
+            <button data-a="mode" data-m="trier" aria-pressed="false">Verified trier</button>
+          </div>
+        </div>
+        <div class="scroller" id="scroller"><div id="screen"></div></div>
+        <nav class="tabs" id="tabs" aria-label="App sections"></nav>
+        <div class="toasts" id="toasts" aria-live="polite"></div>
+        <div class="backdrop" id="backdrop" data-a="sheet-close"></div>
+        <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Panel"></div>
+      </div>
+    </div>
+    <div class="dash" id="dash" hidden></div>
+  </section>
+
+  <aside class="presenter" id="presenter" aria-label="Presenter panel">
+    <div class="row" style="gap:0">
+      <button class="p-toggle" data-a="panel-toggle" aria-expanded="false" aria-controls="pBody">
+        <span><span class="t">Demo walkthrough</span><br><span class="s" id="pToggleStep">Step 1 of 7</span></span>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="btn primary sm p-quick" data-a="next" style="margin-right:12px;flex:none">Next →</button>
+    </div>
+    <div class="p-head">
+      <p class="label">Presenter panel</p>
+      <h2 class="title">Demo <em>walkthrough</em></h2>
+      <div class="bar"></div>
+    </div>
+    <div class="p-body" id="pBody"></div>
+  </aside>
+</main>
+<div class="footer-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= Reward rules ================= */
+const TIERS = {
+  Light:  { bits: 1, cap: 10 },
+  Medium: { bits: 3, cap: 10 },
+  Heavy:  { bits: 8, cap: 5 }
+};
+const MONTHLY_CAP = 150;
+const PENDING_MS = 2000;
+
+// id: [label, tier, counts-when, options]
+const A = {};
+function def(id, group, label, tier, when, o){ A[id] = Object.assign({ id, group, label, tier, when, bits: TIERS[tier].bits, cap: TIERS[tier].cap, payout: "bits" }, o || {}); }
+def("view","Discover and decide","Verified product view","Light","20+ seconds on page and scrolled to reviews",{cap:5, stage:"noticed"});
+def("ask","Discover and decide","Asked a question","Medium","question approved",{pending:true, stage:"discussed"});
+def("answer","Discover and decide","Answered a question","Medium","answer approved (verified triers only)",{pending:true, trier:true, stage:"discussed"});
+def("doubt","Discover and decide","Tapped a doubt","Light","one tap per product",{stage:"hesitated"});
+def("compare","Discover and decide","Compared two products","Light","you have tried at least one",{trier:true, lockMsg:"Counts when you've tried at least one of these", stage:"considered"});
+def("helpful","Discover and decide","Marked a review helpful","Light","once per review",{stage:"considered"});
+def("same","Discover and decide","Same concern on a review","Light","once per review",{stage:"hesitated"});
+def("share","Discover and decide","Shared on WhatsApp","Medium","a friend opens the link",{pending:true, stage:"shared"});
+def("bring","Discover and decide","Voted: bring it to trial","Light","one vote per product",{stage:"considered"});
+def("hi","Connect","Said hi","Medium","the other person replies",{pending:true, stage:"discussed"});
+def("welcome","Connect","Welcomed a new member","Medium","the new member replies",{pending:true, stage:"discussed"});
+def("replyReview","Connect","Replied to a review","Medium","the poster replies or your reply is marked helpful",{pending:true, stage:"discussed"});
+def("day1","After trial","Day-1 first impression","Medium","within 24h of delivery",{trier:true, stage:"used"});
+def("fullsize","After trial","Full-size intent","Light","one tap per product",{trier:true, stage:"considered"});
+def("attrs","After trial","Attribute ratings","Light","after your star rating, once per product",{trier:true, stage:"used"});
+def("day14","After trial","Day-14 follow-up review","Heavy","Day 14 after delivery",{trier:true, payout:"trial", stage:"used"});
+def("photoReview","After trial","Photo review","Heavy","photo passes moderation",{pending:true, trier:true, stage:"used"});
+def("recommend","After trial","Recommended to a friend","Medium","friend opens the link",{pending:true, trier:true, stage:"recommended"});
+def("prompt","Buyers' Circle","Answered a Smytten prompt","Medium","you're a verified buyer",{trier:true, stage:"recommended"});
+def("convo","Buyers' Circle","Started a conversation","Medium","another buyer replies",{pending:true, trier:true, stage:"discussed"});
+def("replyBuyer","Buyers' Circle","Replied to another buyer","Medium","you're a verified buyer",{trier:true, stage:"discussed"});
+def("tip","Buyers' Circle","Shared a tip with a photo","Heavy","photo passes moderation",{pending:true, trier:true, stage:"recommended"});
+def("saveVideo","Buzz Hub","Saved a video","Light","you watched most of the video",{stage:"considered"});
+def("helpfulVideo","Buzz Hub","Marked a video helpful","Light","you watched most of the video",{stage:"considered"});
+def("askVideo","Buzz Hub","Asked under a video","Medium","question approved",{pending:true, stage:"discussed"});
+def("purchase","Purchase","Shared link led to a full-size purchase","Heavy","order delivered",{pending:true, payout:"cashbuck", stage:"bought"});
+
+const EXISTING = [
+  { label:"Comments", reward:"Smytten's current payout" },
+  { label:"Written reviews", reward:"Smytten's current payout" },
+  { label:"Buzz Hub videos", reward:"Smytten's current payout" },
+  { label:"Buzz Hub reply videos", reward:"50 Bucks" }
+];
+
+/* ================= Mock data ================= */
+const PEOPLE = [
+  { id:"aanya", name:"Aanya", skin:"oily skin", status:"trying it for 2 weeks", reply:"Hi! It's been really good on my T-zone, and it doesn't leave my skin tight." },
+  { id:"kabir", name:"Kabir", skin:"combination skin", status:"comparing it with a gel cleanser", reply:"Hey! Feels gentler than my gel one. Cheeks stay comfortable." },
+  { id:"ishita", name:"Ishita", skin:"sensitive skin", status:"checking if it's fragrance-free", reply:"Hi! I couldn't smell anything, and no redness after 10 days." },
+  { id:"rohan", name:"Rohan", skin:"oily skin", status:"bought the full size last month", reply:"Hey! Went for the full size after the trial. Fewer breakouts on my chin." },
+  { id:"zoya", name:"Zoya", skin:"dry skin", status:"just browsing", reply:"Hi! I'm deciding too. Worried it'll be drying for me." }
+];
+const DOUBTS = [
+  { t:"Too oily?", base:412 }, { t:"Strong fragrance?", base:268 }, { t:"Worth the price?", base:351 }, { t:"OK for sensitive skin?", base:497 }
+];
+const FILTERS = ["Oily skin","Dry skin","Combination","18–24","25–34"];
+const BASE_FUNNEL = [
+  ["Noticed","noticed",12480,false],["Considered","considered",6210,false],["Discussed","discussed",1940,true],
+  ["Shared","shared",820,true],["Hesitated","hesitated",2360,true],["Bought","bought",1120,false],
+  ["Used","used",980,false],["Recommended","recommended",410,true],["Repeated","repeated",260,false]
+];
+
+function seed(){
+  return {
+    view:"app", screen:"product", mode:"shopper", step:0, panelOpen:false, sheet:null,
+    bits:0, monthBits:0, existingBucks:0, trialPoints:0, cashbuck:0,
+    daily:{}, once:{}, history:[], stageDelta:{},
+    viewers:37, viewTime:0, reachedReviews:false, viewDone:false,
+    doubtTaps:[0,0,0,0], doubtPicked:-1,
+    tot:{ picked:null, a:58, b:42 },
+    bring:false,
+    filters:[],
+    questions:[
+      { id:"q1", text:"Does it help with blackheads?", count:312, answers:[{ who:"Sana", tried:true, text:"Slowly, yes. My nose looked clearer after about two weeks." }] },
+      { id:"q2", text:"Is it OK to use twice a day?", count:248, answers:[{ who:"Arjun", tried:true, text:"I use it morning and night. No dryness on my oily skin." },{ who:"Meha", tried:false, text:"I think the pack says twice daily." }] },
+      { id:"q3", text:"Will it make my skin purge?", count:191, answers:[] }
+    ],
+    reviews:[
+      { id:"r1", who:"Sana", skin:"Oily skin", age:"18–24", stars:5, text:"Cleared my small breakouts in about 10 days. Slight tingle the first two days.", helpful:214, same:38 },
+      { id:"r2", who:"Tanvi", skin:"Combination", age:"25–34", stars:4, text:"Great on my T-zone, a little drying on the cheeks in winter.", helpful:156, same:61 },
+      { id:"r3", who:"Neha", skin:"Dry skin", age:"25–34", stars:3, text:"Too drying on its own for me. Works if I moisturise right after.", helpful:98, same:44 },
+      { id:"r4", who:"Arjun", skin:"Oily skin", age:"25–34", stars:4, text:"Foams lightly, no strong smell. The 5 ml trial lasted me 9 days.", helpful:77, same:12 }
+    ],
+    replies:{},           // reviewId -> {text, status}
+    people:{},            // personId -> "pending" | "replied"
+    welcome:null,
+    share:null, purchase:null,
+    circlePrompt:[{ who:"Arjun", text:"It's a no-fuss cleanser. Start once a day if your skin is on the dry side." }],
+    threads:[
+      { id:"t1", who:"Tanvi", text:"Week 2 update: fewer breakouts on my chin, but I need moisturiser after. Anyone else?", replies:[{ who:"Arjun", text:"Same here. A gel moisturiser right after fixes it." }] },
+      { id:"t2", who:"Rohan", text:"Morning or night: when do you use it?", replies:[{ who:"Sana", text:"Night only, and sunscreen in the morning." }] },
+      { id:"t3", who:"Ishita", text:"Sensitive skin check-in: no stinging after 10 days.", replies:[] }
+    ],
+    myConvo:null, tips:[],
+    trial:{ day:1, impression:null, intent:null, stars:0, attrs:{ Texture:4, Fragrance:3, Results:4 }, attrsSent:false, day14:null, photo:null, recommend:null, review:false },
+    buzz:{ progress:0, playing:false, saved:false, helpful:false, questions:[], replyVideo:false, comments:[] },
+    convertKick:false
+  };
+}
+let S = seed();
+let timers = [];
+function later(fn, ms){ const t = setTimeout(fn, ms); timers.push(t); return t; }
+
+/* ================= Helpers ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const num = n => Number(n).toLocaleString("en-IN");
+function fb(n){ // Bucks with halves
+  if (n === 0.5) return "½";
+  if (n % 1) return (Math.floor(n) ? Math.floor(n) : "") + "½";
+  return num(n);
+}
+const bucks = () => Math.floor(S.bits / 2) + S.existingBucks;
+const nowT = () => new Date().toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+function tile(color, size){
+  const c = color || "#17A2B0";
+  return `<svg class="tile" viewBox="0 0 80 80" width="${size||84}" height="${size||84}" aria-hidden="true"><rect width="80" height="80" rx="4" fill="${c}"/><g transform="rotate(-18 40 40)"><rect x="29" y="12" width="22" height="44" rx="5" fill="#fff"/><rect x="33" y="56" width="14" height="11" rx="2" fill="#fff" opacity=".85"/><rect x="33" y="24" width="14" height="3" rx="1.5" fill="${c}" opacity=".55"/><rect x="33" y="30" width="9" height="2.5" rx="1.25" fill="${c}" opacity=".35"/></g></svg>`;
+}
+function av(name, i){ return `<span class="avatar av${i % 5}" aria-hidden="true">${esc(name[0])}</span>`; }
+const starStr = n => "★".repeat(n) + "☆".repeat(5 - n);
+const exTag = (t) => `<span class="chip-ex">${t || "Existing reward, unchanged"}</span>`;
+function tierTag(id){ const a = A[id]; return `<span class="chip-tier">+${a.bits} Bit${a.bits>1?"s":""}</span>`; }
+
+/* ================= Toasts & coins ================= */
+function toast(kind, title, sub){
+  const box = $("#toasts");
+  const el = document.createElement("div");
+  el.className = "toast " + kind;
+  el.innerHTML = `<b>${esc(title)}</b>${sub ? `<span class="muted">${esc(sub)}</span>` : ""}`;
+  box.prepend(el);
+  while (box.children.length > 3) box.lastChild.remove();
+  el.dismiss = () => { el.classList.add("out"); setTimeout(() => el.remove(), 240); };
+  setTimeout(el.dismiss, kind === "pending" ? 6000 : 3200);
+  return el;
+}
+function coins(from){
+  const chip = $("#walletChip");
+  if (!chip || S.view !== "app") return;
+  const to = chip.getBoundingClientRect();
+  if (!to.width) return;
+  const f = from && from.width ? from : $("#toasts").getBoundingClientRect();
+  const sx = f.left + f.width / 2 - 11, sy = f.top + Math.min(f.height, 60) / 2 - 11;
+  ["o",""].forEach((cls, i) => {
+    const c = document.createElement("div");
+    c.className = "coin " + cls;
+    c.style.left = sx + "px"; c.style.top = sy + "px";
+    document.body.appendChild(c);
+    setTimeout(() => {
+      c.style.transform = `translate(${to.left + 14 - sx}px, ${to.top + to.height / 2 - 11 - sy}px) scale(.55)`;
+      c.style.opacity = ".2";
+    }, 30 + i * 130);
+    setTimeout(() => { c.remove(); chip.classList.remove("bump"); void chip.offsetWidth; chip.classList.add("bump"); }, 800 + i * 130);
+  });
+}
+
+/* ================= Award engine ================= */
+// Returns true when the action was accepted (awarded now, or pending its condition).
+function act(id, o){
+  o = o || {};
+  const a = A[id];
+  if (a.trier && S.mode !== "trier"){
+    toast("info", a.lockMsg || "Verified triers only", "Switch “View as” to Verified trier to try this.");
+    return false;
+  }
+  if (o.key && S.once[o.key]){
+    toast("info", "Already counted", `${a.label}: Bits count ${a.when}.`);
+    return false;
+  }
+  const used = S.daily[id] || 0;
+  if (used >= a.cap){
+    toast("limit", "Daily limit reached for this action", `${a.label} · ${a.cap} per day`);
+    return false;
+  }
+  S.daily[id] = used + 1;
+  if (o.key) S.once[o.key] = true;
+  const from = o.el ? o.el.getBoundingClientRect() : null;
+  if (a.pending){
+    const pt = toast("pending", "Pending · " + a.label, "Counts when: " + a.when);
+    if (o.onPending) o.onPending();
+    render();
+    later(() => {
+      pt.dismiss();
+      if (o.onResolve) o.onResolve();
+      award(id, o.resolved, null);
+    }, PENDING_MS);
+    return true;
+  }
+  if (o.onResolve) o.onResolve();
+  award(id, null, from);
+  return true;
+}
+function award(id, resolvedMsg, from){
+  const a = A[id];
+  const room = MONTHLY_CAP - S.monthBits;
+  if (room <= 0){
+    toast("limit", "Monthly limit reached", "150 Smytten Bits per month. " + a.label + " still recorded.");
+    render(); return;
+  }
+  const give = Math.min(a.bits, room);
+  const before = bucks();
+  S.monthBits += give;
+  let sub;
+  if (a.payout === "trial"){ S.trialPoints += give; sub = "Paid as Trial points, at a rate agreed with Smytten"; }
+  else if (a.payout === "cashbuck"){ S.cashbuck += give / 2; sub = `${inr(give/2)} Cashbuck added to your wallet`; }
+  else { S.bits += give; sub = `= ${fb(give/2)} Smytten Buck${give/2 > 1 ? "s" : ""}`; }
+  S.history.unshift({ label:a.label, bits:give, payout:a.payout, time:nowT(), id });
+  if (a.stage) S.stageDelta[a.stage] = (S.stageDelta[a.stage] || 0) + 1;
+  toast("award", `+${give} Smytten Bit${give>1?"s":""} · ${a.label}`, resolvedMsg ? resolvedMsg + " · " + sub : sub);
+  if (give < a.bits) toast("limit", "Monthly limit reached", "You hit 150 Bits this month.");
+  if (bucks() > before) S.convertKick = true;
+  render();
+  coins(from);
+}
+function existing(label, bucksPaid, el){
+  S.history.unshift({ label, bits:0, payout:"existing", bucks:bucksPaid || 0, time:nowT() });
+  if (bucksPaid) S.existingBucks += bucksPaid;
+  toast("existing", "Existing reward, unchanged · " + label, bucksPaid ? `${bucksPaid} Bucks at Smytten's current payout. OBSA earns nothing on this.` : "Paid at Smytten's current rate. OBSA earns nothing on this.");
+  render();
+  if (bucksPaid) coins(el ? el.getBoundingClientRect() : null);
+}
+
+/* ================= Screens ================= */
+const TABS = [
+  ["product","Product",'<path d="M5 8h14l-1 12H6L5 8z M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>'],
+  ["circle","Circle",'<circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16.5" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19c.6-3.2 3-5 5.5-5s4.9 1.8 5.5 5M14 15.2c2.6-.6 5.6.6 6.5 3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
+  ["trial","My trial",'<rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 10l2 2 4-4M9 16h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'],
+  ["buzz","Buzz Hub",'<rect x="6" y="3" width="12" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/>'],
+  ["wallet","Wallet",'<rect x="3" y="6" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/><circle cx="16.5" cy="14.5" r="1.4" fill="currentColor"/>']
+];
+function head(label, html){ return `<p class="label">${label}</p><h1 class="title">${html}</h1><div class="bar"></div>`; }
+
+function screenProduct(){
+  const doubtsHtml = DOUBTS.map((d, i) => `<button class="chip ${S.doubtPicked === i ? "on" : ""}" data-a="doubt" data-i="${i}" aria-pressed="${S.doubtPicked === i}">${esc(d.t)}</button>`).join("");
+  const tried = S.mode === "trier";
+  const totPicked = S.tot.picked;
+  const totHtml = `
+    <div class="tot">
+      <div class="opt">${tile("#17A2B0",54)}<span>Blemish Control Cleanser</span>${totPicked ? `<div class="vote-bar"><i style="width:${S.tot.a}%"></i></div><span class="small muted">${S.tot.a}%</span>` : `<button class="btn sm primary" data-a="compare" data-side="a" id="totA">This</button>`}</div>
+      <span class="vs">vs</span>
+      <div class="opt">${tile("#FDB515",54)}<span>Hydra Foam Cleanser</span>${totPicked ? `<div class="vote-bar"><i style="width:${S.tot.b}%"></i></div><span class="small muted">${S.tot.b}%</span>` : `<button class="btn sm" data-a="compare" data-side="b">That</button>`}</div>
+    </div>
+    <p class="small muted" style="margin:8px 0 0">${tried ? "You've tried the Blemish Control Cleanser, so your pick counts." : "Counts when you've tried at least one of these."}</p>`;
+
+  const qaHtml = S.questions.map(q => `
+    <div class="qa">
+      <div class="q">${esc(q.text)} ${q.mine ? (q.status === "pending" ? `<span class="pending-tag">Pending approval</span>` : `<span class="ok-tag">✓ Approved</span>`) : ""}</div>
+      ${q.answers.map(a => `<p class="a"><span class="who">${esc(a.who)}</span> ${a.tried ? `<span class="badge-tried">✓ Tried it</span>` : ""} ${a.status === "pending" ? `<span class="pending-tag">Pending approval</span>` : ""}<br>${esc(a.text)}</p>`).join("") || `<p class="small muted" style="margin:0">No answers yet.</p>`}
+      ${tried && !q.answered && !q.mine ? `<button class="btn sm teal" style="margin-top:8px" data-a="answer-open" data-q="${q.id}" ${q.id==="q3"?'id="answerQ3"':""}>Answer as a verified trier</button>` : ""}
+    </div>`).join("");
+
+  const shown = S.reviews.filter(r => !S.filters.length || S.filters.some(f => f === r.skin || f === r.age));
+  const revHtml = shown.map(r => {
+    const rep = S.replies[r.id];
+    return `<div class="rev">
+      <div class="row"><span class="who">${esc(r.who)}</span><span class="small muted">· ${esc(r.skin)} · ${esc(r.age)}</span><span class="stars" style="margin-left:auto" aria-label="${r.stars} stars">${starStr(r.stars)}</span></div>
+      <p>${esc(r.text)}</p>
+      <div class="row">
+        <button class="mini ${S.once["helpful:"+r.id] ? "on" : ""}" data-a="helpful" data-r="${r.id}" aria-pressed="${!!S.once["helpful:"+r.id]}">👍 Helpful · ${r.helpful + (S.once["helpful:"+r.id]?1:0)}</button>
+        <button class="mini ${S.once["same:"+r.id] ? "on" : ""}" data-a="same" data-r="${r.id}" aria-pressed="${!!S.once["same:"+r.id]}">Same concern · ${r.same + (S.once["same:"+r.id]?1:0)}</button>
+        <button class="mini" data-a="reply-open" data-r="${r.id}">Reply</button>
+      </div>
+      ${rep ? `<div class="reply-box"><b>You:</b> ${esc(rep.text)}<br>${rep.status === "pending" ? `<span class="pending-tag">Waiting for ${esc(r.who)} to reply</span>` : `<b>${esc(r.who)}:</b> ${esc(rep.back)}`}</div>` : ""}
+    </div>`;
+  }).join("") || `<p class="small muted">No reviews match these filters.</p>`;
+
+  const sh = S.share, pu = S.purchase;
+  const shareHtml = `
+    <div class="card c-teal" id="shareCard">
+      <div class="row"><span class="wa">W</span><b class="grow">Ask a friend on WhatsApp</b>${tierTag("share")}</div>
+      <p class="small muted" style="margin:6px 0 10px">Bits count when a friend opens your link.</p>
+      ${!sh ? `<button class="btn primary block" data-a="share" id="shareBtn">Share on WhatsApp</button>` :
+        sh === "pending" ? `<span class="pending-tag">Link sent to Priya. Waiting for her to open it…</span>` :
+        `<div class="hbox">Priya opened your link</div>
+         ${!pu ? `<button class="btn ghost block" style="margin-top:10px" data-a="purchase">Simulate: Priya buys the full size</button><p class="small muted" style="margin:6px 0 0">Paid as Cashbuck after “order delivered”.</p>` :
+           pu === "pending" ? `<p style="margin:10px 0 0"><span class="pending-tag">Order placed · counts when delivered</span></p>` :
+           `<p class="ok-tag" style="margin:10px 0 0">✓ Order delivered · Cashbuck added</p>`}`}
+    </div>`;
+
+  return `
+  ${head("She sees", "Example: The <em>Cleanser</em> Category")}
+  <div class="card" id="productCard">
+    <div class="prod">${tile()}
+      <div><h2>Blemish Control Cleanser</h2>
+        <div class="small muted">CeraVe · 5 ml trial</div>
+        <div class="small" style="margin-top:4px"><span class="stars">★</span> 18.4K ratings · 75% rated 4.0+</div>
+      </div>
+    </div>
+    <div class="ring-wrap ${S.viewDone ? "done" : ""}" id="ringWrap">
+      <svg class="ring" viewBox="0 0 40 40" aria-hidden="true"><circle class="bg" cx="20" cy="20" r="16"/><circle class="fg" id="ringFg" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="100.5"/></svg>
+      <span id="ringText"></span>
+    </div>
+  </div>
+  <div class="stats" id="statTiles">
+    <div class="stat"><b>1,248</b><span>have viewed this product</span></div>
+    <div class="stat"><b><span class="live-dot" aria-hidden="true"></span><span id="liveCount">${S.viewers}</span></b><span>viewing it right now</span></div>
+  </div>
+  <div class="actions3" id="actionRow">
+    <button class="btn" data-a="sheet" data-t="people" id="sayHiBtn">Say hi</button>
+    <button class="btn primary" data-a="sheet" data-t="ask" id="askBtn">Ask a question</button>
+    <button class="btn teal" data-a="convo-start" id="convoBtn">Start a conversation</button>
+  </div>
+
+  <div class="card c-yellow newmember">
+    ${av("Meera", 2)}
+    <div class="grow small"><b>Meera</b> just joined Smytten<br><span class="muted">${S.welcome === "replied" ? "Meera: “Thank you! Excited to try this.”" : "Dry skin · first trial box"}</span></div>
+    ${!S.welcome ? `<button class="btn sm" data-a="welcome">Welcome</button>` : S.welcome === "pending" ? `<span class="pending-tag">Waiting</span>` : `<span class="ok-tag">✓</span>`}
+  </div>
+
+  <div class="sec"><h3>Tap a doubt</h3><span class="counts">One tap per product · ${tierTag("doubt")}</span></div>
+  <div class="chips" id="doubts">${doubtsHtml}</div>
+  ${S.doubtPicked >= 0 ? `<p class="small muted" style="margin:8px 0 0">${num(DOUBTS[S.doubtPicked].base + S.doubtTaps[S.doubtPicked])} people had the same doubt. The brand now sees why.</p>` : ""}
+
+  <div class="sec"><h3>This or That</h3>${tierTag("compare")}</div>
+  <div class="card c-navy" id="totCard">${totHtml}</div>
+
+  <div class="sec"><h3>Questions &amp; answers</h3><span class="counts">${S.mode==="trier" ? "You can answer" : "Answers from triers"}</span></div>
+  <div class="card c-teal" id="qa">${qaHtml}</div>
+
+  <div class="sec" id="reviewsHead"><h3>Reviews</h3><span class="counts">Written reviews: ${exTag()}</span></div>
+  <p class="small muted" style="margin:-4px 0 8px">Someone like me</p>
+  <div class="chips" style="margin-bottom:12px">${FILTERS.map(f => `<button class="chip f ${S.filters.includes(f) ? "on" : ""}" data-a="filter" data-f="${esc(f)}" aria-pressed="${S.filters.includes(f)}">${esc(f)}</button>`).join("")}</div>
+  <div class="card c-yellow" id="reviews">${revHtml}</div>
+
+  ${shareHtml}
+
+  <div class="card c-navy">
+    <div class="row"><b class="grow">Not on trial yet: Hydrating Cream Cleanser</b>${tierTag("bring")}</div>
+    <p class="small muted" style="margin:6px 0 10px">${num(1830 + (S.bring ? 1 : 0))} people want a mini of this.</p>
+    <button class="btn block ${S.bring ? "" : "teal"}" data-a="bring" ${S.bring ? "disabled" : ""}>${S.bring ? "✓ You voted" : "Bring it to trial"}</button>
+  </div>
+  <p class="caption">Product details are illustrative. View counts are example data.</p>`;
+}
+
+function screenCircle(){
+  const tr = S.mode === "trier";
+  return `
+  ${head("She belongs", "Buyers' <em>Circle</em>")}
+  <p class="small muted" style="margin:-6px 0 12px">Blemish Control Cleanser · verified buyers post, everyone can read.</p>
+  ${tr ? "" : `<div class="banner">🔒 Only verified buyers can post here. Switch “View as” to Verified trier.</div>`}
+  <div class="card" id="promptCard">
+    <p class="label" style="margin-bottom:6px">Smytten prompt</p>
+    <b>What would you tell a friend about this?</b>
+    ${S.circlePrompt.map(p => `<p class="small" style="margin:8px 0 0"><span class="who">${esc(p.who)}</span> ${p.mine ? "" : `<span class="badge-tried">✓ Bought</span>`}<br>${esc(p.text)}</p>`).join("")}
+    ${S.once.prompt ? "" : `<div class="row" style="margin-top:10px"><input class="input grow" id="promptIn" data-keep placeholder="${tr ? "Tell a friend…" : "Verified buyers only"}" aria-label="Your answer"><button class="btn primary sm" style="min-height:44px" data-a="prompt">Post</button></div><p class="small muted" style="margin:6px 0 0">${tierTag("prompt")}</p>`}
+  </div>
+  <div class="actions3" style="grid-template-columns:1fr 1fr">
+    <button class="btn teal" data-a="sheet" data-t="convo" id="convoBtn2">Start a conversation</button>
+    <button class="btn primary" data-a="sheet" data-t="tip" id="tipBtn">Share a tip with a photo</button>
+  </div>
+  ${S.tips.map(t => `<div class="card c-yellow"><div class="row">${av("You",0)}<b class="grow">You · tip</b>${t.status === "pending" ? `<span class="pending-tag">In moderation</span>` : `<span class="ok-tag">✓ Live</span>`}</div><p style="margin:8px 0">${esc(t.text)}</p><div class="photo-ph has">📷 Your routine photo</div></div>`).join("")}
+  ${S.myConvo ? `<div class="card c-teal"><div class="row">${av("You",0)}<b class="grow">You</b></div><p style="margin:8px 0">${esc(S.myConvo.text)}</p>${S.myConvo.status === "pending" ? `<span class="pending-tag">Waiting for a buyer to reply</span>` : `<p class="reply-box" style="margin:0"><b>Rohan:</b> Two weeks in, fewer breakouts. I use it at night only.</p>`}</div>` : ""}
+  ${S.threads.map((t, i) => `
+    <div class="card ${["c-teal","c-yellow","c-navy"][i % 3]}">
+      <div class="row">${av(t.who, i + 1)}<div class="grow"><b>${esc(t.who)}</b> <span class="badge-tried">✓ Bought</span></div></div>
+      <p style="margin:8px 0">${esc(t.text)}</p>
+      ${t.replies.map(r => `<div class="reply-box"><b>${esc(r.who)}:</b> ${esc(r.text)}</div>`).join("")}
+      <div class="row" style="margin-top:8px"><input class="input grow" id="tin-${t.id}" data-keep placeholder="${tr ? "Reply to " + esc(t.who) + "…" : "Verified buyers only"}" aria-label="Reply to ${esc(t.who)}"><button class="btn sm" style="min-height:44px" data-a="thread-reply" data-t="${t.id}">Reply</button></div>
+    </div>`).join("")}
+  <p class="small muted">Replies to other buyers ${tierTag("replyBuyer")} · Conversations count when another buyer replies.</p>`;
+}
+
+function screenTrial(){
+  if (S.mode !== "trier"){
+    return `${head("She tries", "After the <em>trial</em>")}
+    <div class="card locked"><div class="lock"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
+    <b>Your trial actions unlock after delivery</b><p class="small muted">Day-1 impressions, attribute ratings and the Day-14 follow-up are for verified triers.</p>
+    <button class="btn primary" data-a="mode" data-m="trier">View as Verified trier</button></div>`;
+  }
+  const t = S.trial;
+  const sliders = Object.keys(t.attrs).map(k => `<div class="slider"><label for="sl-${k}">${k}<span>${t.attrs[k]} / 5</span></label><input type="range" min="1" max="5" step="1" id="sl-${k}" data-in="attr" data-k="${k}" value="${t.attrs[k]}" ${t.attrsSent ? "disabled" : ""}></div>`).join("");
+  return `
+  ${head("She tries", "After the <em>trial</em>")}
+  <div class="card c-teal">
+    <div class="prod">${tile(null,56)}<div><b>Blemish Control Cleanser</b><div class="small muted">5 ml trial · Order #SM-20418</div><span class="delivered" style="margin-top:6px">● ${t.day === 1 ? "Delivered today" : "Day 14 of your trial"}</span></div></div>
+  </div>
+
+  <div class="sec"><h3>Day-1 first impression</h3>${tierTag("day1")}</div>
+  <div class="card">
+    ${t.impression ? `<p style="margin:0">“${esc(t.impression)}”</p><p class="ok-tag" style="margin:6px 0 0">✓ Shared within 24h of delivery</p>` :
+      `<p class="small muted" style="margin:0 0 8px">Counts when shared within 24h of delivery.</p>
+       <textarea class="ta" id="day1In" data-keep aria-label="First impression" placeholder="First wash: how did it feel?">Light gel, foams a little, no tight feeling after.</textarea>
+       <button class="btn primary block" style="margin-top:8px" data-a="day1" ${t.day !== 1 ? "disabled" : ""}>Share first impression</button>`}
+  </div>
+
+  <div class="sec"><h3>Would you buy the full size?</h3>${tierTag("fullsize")}</div>
+  <div class="row" style="margin-bottom:12px">${["Yes","Maybe","Not yet"].map(v => `<button class="btn grow ${t.intent === v ? "primary" : "ghost"}" data-a="fullsize" data-v="${v}" ${t.intent && t.intent !== v ? "disabled" : ""}>${v}</button>`).join("")}</div>
+
+  <div class="sec"><h3>Rate it</h3>${tierTag("attrs")}</div>
+  <div class="card c-yellow">
+    <div class="starpick" role="group" aria-label="Star rating">${[1,2,3,4,5].map(n => `<button class="${n <= t.stars ? "on" : ""}" data-a="star" data-n="${n}" aria-label="${n} star${n>1?"s":""}" ${t.attrsSent ? "disabled" : ""}>★</button>`).join("")}</div>
+    ${t.stars ? `${sliders}${t.attrsSent ? `<p class="ok-tag" style="margin:4px 0 0">✓ Ratings shared with the brand</p>` : `<button class="btn primary block" data-a="attrs">Submit ratings</button>`}` : `<p class="small muted" style="margin:4px 0 0">Tap a star rating to rate Texture, Fragrance and Results.</p>`}
+  </div>
+
+  <div class="card c-navy">
+    <div class="row"><b class="grow">Write a review</b>${exTag()}</div>
+    <p class="small muted" style="margin:6px 0 10px">Written reviews stay at Smytten's current payout.</p>
+    <button class="btn block" data-a="written-review" ${t.review ? "disabled" : ""}>${t.review ? "✓ Review posted" : "Write a review"}</button>
+  </div>
+
+  <div class="sec"><h3>Photo review</h3>${tierTag("photoReview")}</div>
+  <div class="card c-teal">
+    ${t.photo === "pending" ? `<span class="pending-tag">Photo in moderation…</span>` : t.photo === "done" ? `<p class="ok-tag" style="margin:0">✓ Photo approved and live</p>` :
+      `<div class="photo-ph" style="margin-bottom:8px">📷 Your before / after photo (sample)</div><button class="btn primary block" data-a="photo-review">Post photo review</button>`}
+  </div>
+
+  <div class="sec"><h3>Recommend to someone like you</h3>${tierTag("recommend")}</div>
+  <div class="card">
+    ${t.recommend === "pending" ? `<span class="pending-tag">Sent to Kavya. Counts when she opens it.</span>` : t.recommend === "done" ? `<p class="ok-tag" style="margin:0">✓ Kavya opened your recommendation</p>` :
+      `<label class="small" for="recSkin">Recommend to someone with</label>
+       <div class="row" style="margin-top:6px"><select class="input grow" id="recSkin" data-keep><option>oily skin</option><option>combination skin</option><option>sensitive skin</option><option>dry skin</option></select><button class="btn primary" data-a="recommend">Send</button></div>`}
+  </div>
+
+  <div class="sec"><h3>Day-14 follow-up</h3><span class="chip-tier">Trial points</span></div>
+  <div class="card c-yellow" id="day14Card">
+    ${t.day14 ? `<p style="margin:0">“${esc(t.day14)}”</p><p class="ok-tag" style="margin:6px 0 0">✓ Paid as Trial points, at a rate agreed with Smytten</p>` :
+      t.day === 1 ? `<p class="small muted" style="margin:0 0 10px">Unlocks 14 days after delivery. Paid as Trial points, at a rate agreed with Smytten.</p><button class="btn ghost block" data-a="ff14">Demo: fast-forward to Day 14</button>` :
+      `<textarea class="ta" id="day14In" data-keep aria-label="Day 14 review">Two weeks in: fewer breakouts on my chin, and my T-zone is less shiny by evening.</textarea><button class="btn primary block" style="margin-top:8px" data-a="day14">Post Day-14 review</button>`}
+  </div>`;
+}
+
+function screenBuzz(){
+  const b = S.buzz;
+  const watched = b.progress >= 75;
+  return `
+  ${head("She watches", "Buzz <em>Hub</em>")}
+  <div class="video" id="video">
+    <svg class="tube" viewBox="0 0 72 150" aria-hidden="true"><rect x="8" y="0" width="56" height="118" rx="12" fill="#17A2B0"/><rect x="20" y="118" width="32" height="28" rx="4" fill="#E8E2DA"/><rect x="18" y="30" width="36" height="6" rx="3" fill="#fff" opacity=".7"/><rect x="18" y="42" width="24" height="5" rx="2.5" fill="#fff" opacity=".45"/></svg>
+    ${b.playing || b.progress >= 100 ? "" : `<button class="play" data-a="play" aria-label="Play video"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="currentColor"/></svg></button>`}
+    <div class="vmeta"><b>@aanya.tries</b><br>My 2-week oily-skin routine with the Blemish Control Cleanser</div>
+    <div class="prog"><i id="vprog" style="width:${b.progress}%"></i></div>
+  </div>
+  <p class="small muted" style="margin:0 0 10px">${watched ? "✓ You watched most of this video." : "Save and Helpful count once you've watched most of the video."}</p>
+  <div class="vacts">
+    <button class="btn ${b.saved ? "navy" : ""}" data-a="save-video">${b.saved ? "✓ Saved" : "Save"}</button>
+    <button class="btn ${b.helpful ? "navy" : ""}" data-a="helpful-video">${b.helpful ? "✓ Helpful" : "Helpful"}</button>
+  </div>
+  <div class="card c-teal">
+    <div class="row"><b class="grow">Ask a question under this video</b>${tierTag("askVideo")}</div>
+    ${b.questions.map(q => `<p class="small" style="margin:8px 0 0"><b>You:</b> ${esc(q.text)} ${q.status === "pending" ? `<span class="pending-tag">Pending approval</span>` : `<span class="ok-tag">✓ Approved</span>`}</p>`).join("")}
+    <div class="row" style="margin-top:8px"><input class="input grow" id="vqIn" data-keep value="Do you use it in the morning too?" aria-label="Your question"><button class="btn primary sm" style="min-height:44px" data-a="ask-video">Ask</button></div>
+  </div>
+  <div class="card c-navy">
+    <div class="row"><b class="grow">Reply with a video</b></div>
+    <p style="margin:6px 0 10px">${exTag("Existing 50 Bucks reward, unchanged")}</p>
+    <button class="btn block" data-a="reply-video" ${b.replyVideo ? "disabled" : ""}>${b.replyVideo ? "✓ Reply video posted" : "🎥 Record a reply video"}</button>
+  </div>
+  <div class="card c-yellow">
+    <div class="row"><b class="grow">Comments</b>${exTag()}</div>
+    ${b.comments.map(c => `<p class="small" style="margin:8px 0 0"><b>You:</b> ${esc(c)}</p>`).join("")}
+    <div class="row" style="margin-top:8px"><input class="input grow" id="vcIn" data-keep placeholder="Add a comment" aria-label="Comment"><button class="btn sm" style="min-height:44px" data-a="comment">Post</button></div>
+  </div>`;
+}
+
+function screenWallet(){
+  const toNext = S.bits % 2;
+  const caps = Object.keys(S.daily).map(id => {
+    const a = A[id], u = S.daily[id];
+    return `<div class="capline"><span>${esc(a.label)}</span><div class="pbar ${u >= a.cap ? "yellow" : "teal"}"><i style="width:${Math.min(100, u / a.cap * 100)}%"></i></div><span class="small" style="text-align:right">${u}/${a.cap}</span></div>`;
+  }).join("");
+  return `
+  ${head("She earns", "Every Interaction <em>Has Value</em>")}
+  <div class="balance">
+    <div class="card"><span class="small muted">Smytten Bits</span><b id="balBits">${S.bits}</b><span class="small muted">earned this month</span></div>
+    <div class="card c-yellow"><span class="small muted">Smytten Bucks</span><b id="balBucks">${num(bucks())}</b><span class="small muted">ready to redeem</span></div>
+  </div>
+  <div class="card c-teal" id="convertCard">
+    <div class="row"><b class="grow">Next Buck</b><span class="small muted">${toNext} of 2 Bits</span></div>
+    <div class="pbar" style="margin:8px 0 4px"><i style="width:${toNext * 50}%"></i></div>
+    <div class="convert" id="convert" aria-label="2 Bits make 1 Buck">
+      <span class="c b1">Bit</span><span class="c b2">Bit</span><span class="arrow">→</span><span class="c y">Buck</span>
+    </div>
+    <div class="hbox" style="text-align:center">2 Smytten Bits = 1 Smytten Buck</div>
+    <p class="small muted" style="margin:8px 0 0">Nothing changes in how you redeem Bucks.</p>
+  </div>
+  <div class="card c-navy">
+    <b>Limits</b>
+    <div class="row" style="margin:10px 0 4px"><span class="small grow">This month</span><span class="small"><b>${S.monthBits}</b> / ${MONTHLY_CAP} Bits</span></div>
+    <div class="pbar"><i style="width:${S.monthBits / MONTHLY_CAP * 100}%"></i></div>
+    <p class="small muted" style="margin:12px 0 2px">Today, per action</p>
+    ${caps || `<p class="small muted" style="margin:0">Light actions: 10 a day (product views: 5) · Medium: 10 a day · Heavy: 5 a day.</p>`}
+  </div>
+  <div class="card c-yellow">
+    <div class="kv"><span>Trial points</span><b>${S.trialPoints ? S.trialPoints + " Bits' worth" : "0"}</b></div>
+    <div class="kv"><span>Cashbuck</span><b>${inr(S.cashbuck)}</b></div>
+    <div class="kv"><span>Existing rewards (unchanged)</span><b>${num(S.existingBucks)} Bucks</b></div>
+  </div>
+  <div class="sec"><h3>History</h3><span class="counts">Bits · Bucks</span></div>
+  <div class="card">
+    ${S.history.length ? `<ul class="hist">${S.history.map(h => `<li><span>${esc(h.label)}<br><span class="small muted">${h.time}${h.payout === "existing" ? " · " : ""}</span>${h.payout === "existing" ? exTag() : ""}</span>
+      <span class="n bits">${h.bits ? "+" + h.bits : "–"}</span>
+      <span class="n">${h.payout === "bits" ? fb(h.bits / 2) : h.payout === "trial" ? "Trial pts" : h.payout === "cashbuck" ? inr(h.bits / 2) + " CB" : h.bucks ? h.bucks : "–"}</span></li>`).join("")}</ul>` : `<p class="small muted" style="margin:0">No Bits yet. Try any action on the product page.</p>`}
+  </div>`;
+}
+
+/* ================= Sheets ================= */
+function sheetHtml(){
+  const sh = S.sheet;
+  if (!sh) return "";
+  let title = "", body = "";
+  if (sh.t === "people"){
+    title = "People <em>here</em>";
+    body = `<p class="small muted" style="margin:0 0 6px">You: Riya · oily skin · 25–34. Bits count when they reply.</p>` + PEOPLE.map((p, i) => {
+      const st = S.people[p.id];
+      return `<div class="person">${av(p.name, i)}<div class="meta"><b>${esc(p.name)}</b> · ${esc(p.skin)}<br><span class="muted">${esc(p.status)}</span></div>
+        ${!st ? `<button class="btn sm" data-a="hi" data-p="${p.id}" id="hi-${p.id}" style="min-height:44px">Say hi</button>` : st === "pending" ? `<span class="pending-tag">Pending</span>` : `<span class="ok-tag">✓ Replied</span>`}</div>
+        ${st === "replied" ? `<div class="person-reply"><b>${esc(p.name)}:</b> ${esc(p.reply)}</div>` : ""}`;
+    }).join("");
+  } else if (sh.t === "ask"){
+    title = "Ask a <em>question</em>";
+    body = `<p class="small muted" style="margin:0 0 8px">Triers and buyers answer. Bits count when your question is approved. ${tierTag("ask")}</p>
+      <textarea class="ta" id="askIn" data-keep aria-label="Your question">Is it OK for oily, acne-prone skin in humid weather?</textarea>
+      <button class="btn primary block" style="margin-top:10px" data-a="ask">Post question</button>`;
+  } else if (sh.t === "answer"){
+    const q = S.questions.find(x => x.id === sh.q);
+    title = "Answer as a <em>trier</em>";
+    body = `<p style="margin:0 0 8px"><b>${esc(q.text)}</b></p>
+      <textarea class="ta" id="ansIn" data-keep aria-label="Your answer">Not for me. A little dryness in week one, then it settled.</textarea>
+      <button class="btn primary block" style="margin-top:10px" data-a="answer" data-q="${q.id}">Post answer</button>`;
+  } else if (sh.t === "reply"){
+    const r = S.reviews.find(x => x.id === sh.r);
+    title = "Reply to <em>" + esc(r.who) + "</em>";
+    body = `<p class="small" style="margin:0 0 8px">“${esc(r.text)}”</p>
+      <textarea class="ta" id="repIn" data-keep aria-label="Your reply">Did the tingle go away after the first week?</textarea>
+      <p class="small muted" style="margin:6px 0 0">Counts when ${esc(r.who)} replies or your reply is marked helpful. ${tierTag("replyReview")}</p>
+      <button class="btn primary block" style="margin-top:10px" data-a="reply" data-r="${r.id}">Send reply</button>`;
+  } else if (sh.t === "convo"){
+    title = "Start a <em>conversation</em>";
+    body = `<p class="small muted" style="margin:0 0 8px">Ask other verified buyers. Counts when another buyer replies. ${tierTag("convo")}</p>
+      <textarea class="ta" id="convoIn" data-keep aria-label="Conversation">How's it working for you? I'm on day 5 with oily skin.</textarea>
+      <button class="btn teal block" style="margin-top:10px" data-a="convo">Start conversation</button>`;
+  } else if (sh.t === "tip"){
+    title = "Share a <em>tip</em>";
+    body = `<p class="small muted" style="margin:0 0 8px">Your routine with a photo. Counts when the photo passes moderation. ${tierTag("tip")}</p>
+      <textarea class="ta" id="tipIn" data-keep aria-label="Your tip">Night routine: cleanse 60 seconds, pat dry, gel moisturiser. Morning: just water and sunscreen.</textarea>
+      <button class="photo-ph ${sh.photo ? "has" : ""}" style="margin-top:8px" data-a="tip-photo">${sh.photo ? "📷 routine.jpg attached" : "＋ Add a photo"}</button>
+      <button class="btn primary block" style="margin-top:10px" data-a="tip" id="tipPost">Post tip</button>`;
+  }
+  return `<div class="grab"></div><div class="sh-head"><h2 class="title">${title}</h2><button class="close" data-a="sheet-close" aria-label="Close">×</button></div><div class="sh-body">${body}</div>`;
+}
+
+/* ================= Dashboards ================= */
+function dashInsights(){
+  const max = 12480;
+  const funnel = BASE_FUNNEL.map(([n, k, v, o]) => {
+    const d = S.stageDelta[k] || 0;
+    return `<div class="frow ${o ? "obsa" : ""}"><span>${n}</span><span class="track"><i style="width:${Math.max(2, (v + d) / max * 100)}%"></i></span><span class="v">${num(v + d)}${d ? `<span class="live-delta">+${d}</span>` : ""}</span></div>`;
+  }).join("");
+  const dmax = Math.max(...DOUBTS.map((d, i) => d.base + S.doubtTaps[i]));
+  const doubts = DOUBTS.map((d, i) => ({ t:d.t, v:d.base + S.doubtTaps[i], me:S.doubtTaps[i] })).sort((a, b) => b.v - a.v)
+    .map(d => `<div class="hbar"><span>${esc(d.t)}</span><span class="track"><i style="width:${d.v / dmax * 100}%"></i></span><span class="v">${num(d.v)}</span></div>`).join("");
+  const qs = S.questions.map(q => ({ t:q.text, v:q.count || 1, mine:q.mine && q.status !== "pending" })).filter(q => !q.mine || true).sort((a, b) => b.v - a.v);
+  const att = S.trial.attrsSent ? S.trial.attrs : null;
+  const avg = (base, k) => att ? ((base * 412 + att[k]) / 413).toFixed(2) : base.toFixed(1);
+  const attrs = [["Texture",4.1],["Fragrance",3.6],["Results",3.9]].map(([k, b]) => `<div class="hbar"><span>${k}</span><span class="track"><i style="width:${avg(b,k) / 5 * 100}%;background:var(--yellow)"></i></span><span class="v">${avg(b,k)}</span></div>`).join("");
+  const flow = ["Discover","Explore","Talk","Share","Connect","Try","Buy","Recommend","Return"];
+  const obsaSteps = ["Talk","Share","Connect","Recommend"];
+  return `
+  ${head("Brand sees", "The Social <em>Pulse</em>")}
+  <div class="flow" aria-label="Customer journey">${flow.map((f, i) => `<span class="fc ${obsaSteps.includes(f) ? "o" : ""}">${f}</span>${i < flow.length - 1 ? `<span class="ar">→</span>` : ""}`).join("")}</div>
+  <div class="grid2">
+    <div class="card c-navy" id="funnel" style="grid-column:1/-1">
+      <div class="row wrap"><b class="grow">Journey funnel · Blemish Control Cleanser · last 30 days</b>
+      <div class="legend"><span><i style="background:var(--navy)"></i>Already measured</span><span><i style="background:var(--orange)"></i>Added by OBSA</span></div></div>
+      <div class="funnel">${funnel}</div>
+      <p class="small muted" style="margin:10px 0 0">Example data. Teal “+n” marks actions taken live in this demo.</p>
+    </div>
+    <div class="card c-teal"><b>Top hesitations · from Tap a doubt</b><div style="margin-top:8px">${doubts}</div></div>
+    <div class="card c-yellow"><b>Attribute ratings · average out of 5</b><div style="margin-top:8px">${attrs}</div>${att ? `<p class="small muted" style="margin:4px 0 0">Includes your live rating.</p>` : ""}</div>
+    <div class="card" style="grid-column:1/-1"><b>Top questions</b>
+      <ul class="qlist" style="margin-top:6px">${qs.map(q => `<li><span>${esc(q.t)}</span><span class="muted">${q.v > 1 ? num(q.v) + " asked" : "new · live"}</span></li>`).join("")}</ul>
+    </div>
+  </div>
+  <div class="hbox pulse-foot">PulseAI shows what people do. OBSA adds what they say, and why.</div>
+  <p class="small muted">Brands get these insights; they don't pay per action. Smytten funds Bits, see <button class="btn sm teal" data-a="view" data-v="econ" style="margin-left:4px">Smytten economics →</button></p>`;
+}
+
+function dashEcon(){
+  let lastG = "";
+  const rows = Object.values(A).map(a => {
+    let g = "";
+    if (a.group !== lastG){ g = `<tr class="grp"><td colspan="6">${esc(a.group)}</td></tr>`; lastG = a.group; }
+    const user = a.payout === "trial" ? "Trial points (agreed rate)" : a.payout === "cashbuck" ? inr(a.bits / 2) + " Cashbuck" : fb(a.bits / 2) + " Bucks";
+    return g + `<tr><td>${esc(a.label)}<br><span class="small muted">Counts when ${esc(a.when)}</span></td><td>${a.tier}</td><td class="n">${a.bits}</td><td class="n">${inr(a.bits)}</td><td class="n">${user}</td><td class="n">${a.cap}/day</td></tr>`;
+  }).join("");
+  const ex = `<tr class="grp"><td colspan="6">Existing actions · at cost</td></tr>` + EXISTING.map(e => `<tr><td>${esc(e.label)} ${exTag()}</td><td>–</td><td class="n">–</td><td class="n">At cost</td><td class="n">${esc(e.reward)}</td><td class="n">OBSA ₹0</td></tr>`).join("");
+  const s = S.monthBits;
+  return `
+  ${head("Smytten sees", "Every Rupee, <em>Accounted For</em>")}
+  <div class="grid2">
+    <div class="card c-teal"><b>The rule</b>
+      <p style="margin:6px 0">Smytten pays <b>₹1 per verified Smytten Bit</b> on new actions. In the pilot, 50% goes to the user: <b>2 Bits = 1 Buck</b>.</p>
+      <p class="small muted" style="margin:0">Light 1 Bit · Medium 3 Bits · Heavy 8 Bits. Monthly cap 150 Bits per user = ₹150 max per user per month.</p>
+    </div>
+    <div class="card c-yellow" id="sessionCard"><b>This demo session</b>
+      <div class="kv"><span>Verified Bits</span><b>${s}</b></div>
+      <div class="kv"><span>Smytten pays</span><b>${inr(s)}</b></div>
+      <div class="kv"><span>User receives</span><b>${fb(s / 2)} Bucks equiv.</b></div>
+      <div class="kv"><span>OBSA earns</span><b>${inr(s / 2)}</b></div>
+    </div>
+  </div>
+  <div class="card c-navy" id="calc">
+    <b>Pilot calculator</b>
+    <div class="grid2" style="margin-top:8px">
+      <div class="slider"><label for="cUsers">Number of users<span id="cUsersV">1,000</span></label><input type="range" id="cUsers" min="100" max="20000" step="100" value="1000" data-in="calc"></div>
+      <div class="slider"><label for="cBits">Average Bits per user per month<span id="cBitsV">40</span></label><input type="range" id="cBits" min="0" max="150" step="1" value="40" data-in="calc"></div>
+    </div>
+    <div class="calc-out">
+      <div class="card c-navy"><span class="small muted">Smytten pays</span><b id="cPay">₹40,000</b></div>
+      <div class="card"><span class="small muted">Users receive</span><b id="cBucks">20,000 Bucks</b></div>
+      <div class="card c-teal"><span class="small muted">OBSA earns</span><b id="cObsa">₹20,000</b></div>
+    </div>
+    <div class="hbox" style="margin-top:12px" id="cLine">Smytten pays ₹40,000 · Users receive 20,000 Bucks · OBSA earns ₹20,000</div>
+    <p class="small muted" style="margin:8px 0 0">Existing actions stay at cost. Rupee figures assume 1 Buck ≈ ₹1. Max exposure at this size: <span id="cMax">₹1,50,000</span> a month.</p>
+  </div>
+  <div class="sec"><h3>Every action</h3><span class="counts">Smytten pays ₹1 per Bit · user gets 50%</span></div>
+  <div class="table-wrap"><table class="econ">
+    <thead><tr><th>Action</th><th>Tier</th><th>Bits</th><th>Smytten pays</th><th>User gets</th><th>Cap</th></tr></thead>
+    <tbody>${rows}${ex}</tbody>
+  </table></div>`;
+}
+function updateCalc(){
+  const u = +$("#cUsers").value, b = +$("#cBits").value;
+  const pay = u * b;
+  $("#cUsersV").textContent = num(u); $("#cBitsV").textContent = b;
+  $("#cPay").textContent = inr(pay); $("#cBucks").textContent = num(pay / 2) + " Bucks"; $("#cObsa").textContent = inr(pay / 2);
+  $("#cLine").textContent = `Smytten pays ${inr(pay)} · Users receive ${num(pay / 2)} Bucks · OBSA earns ${inr(pay / 2)}`;
+  $("#cMax").textContent = inr(u * MONTHLY_CAP);
+}
+
+/* ================= Presenter ================= */
+const STEPS = [
+  { text:"Every product page becomes a live social space.", go:{ view:"app", screen:"product" }, target:"#statTiles", top:true },
+  { text:"She has a doubt. One tap, and the brand learns why people hesitate.", go:{ view:"app", screen:"product" }, target:"#doubts" },
+  { text:"She asks a question. Once approved, she earns 3 Smytten Bits.", go:{ view:"app", screen:"product" }, target:"#askBtn" },
+  { text:"She says hi to someone with the same skin type. Bits count only when they reply.", go:{ view:"app", screen:"product", sheet:{ t:"people" } }, target:"#hi-aanya" },
+  { text:"After her trial, she joins the Buyers' Circle and shares a tip.", go:{ view:"app", screen:"circle", mode:"trier" }, target:"#tipBtn" },
+  { text:"Her Bits turn into Smytten Bucks. Nothing changes in Smytten's Bucks system.", go:{ view:"app", screen:"wallet" }, target:"#convertCard", convert:true },
+  { text:"Brands see the full journey, and Smytten sees exactly what it pays.", go:{ view:"insights" }, target:"#funnel", top:true }
+];
+const HINTS = [
+  "Point at the live count. Scroll to reviews and stay 20s for a verified view.",
+  "Tap any chip, e.g. “Too oily?”.",
+  "Tap Ask a question, then Post. Watch Pending → +3 Bits.",
+  "Tap Say hi next to Aanya. Bits land when she replies.",
+  "Tap Share a tip, add a photo, post. Moderation → +8 Bits.",
+  "Every 2 Bits converts to 1 Buck. Point at the limits.",
+  "Then open Smytten economics: 1,000 × 40 = ₹40,000."
+];
+function renderPanel(){
+  const st = S.step;
+  $("#pBody").innerHTML = `
+    <ol class="steps">${STEPS.map((s, i) => `<li><button data-a="step" data-n="${i}" class="${i < st ? "done" : ""}" ${i === st ? 'aria-current="step"' : ""}><span class="num">${i < st ? "✓" : i + 1}</span><span>${esc(s.text)}</span></button></li>`).join("")}</ol>
+    <div class="script"><p class="label">Say this</p><div class="hbox">${esc(STEPS[st].text)}</div><p class="small muted" style="margin:8px 0 0">${esc(HINTS[st])}</p></div>
+    <div class="p-nav"><button class="btn" data-a="prev" ${st === 0 ? "disabled" : ""}>← Back</button><button class="btn primary" data-a="next">${st === STEPS.length - 1 ? "Finish ✓" : "Next →"}</button></div>
+    ${st === STEPS.length - 1 ? `<button class="btn teal block" data-a="view" data-v="econ" style="margin-bottom:12px">Open Smytten economics →</button>` : ""}
+    <div class="card c-yellow session"><b>This session</b>
+      <div class="kv"><span>Verified Bits</span><b>${S.monthBits}</b></div>
+      <div class="kv"><span>Smytten pays</span><b>${inr(S.monthBits)}</b></div>
+      <div class="kv"><span>User gets</span><b>${fb(S.monthBits / 2)} Bucks equiv.</b></div>
+      <div class="kv"><span>OBSA earns</span><b>${inr(S.monthBits / 2)}</b></div>
+    </div>
+    <button class="btn ghost block" data-a="reset">↺ Reset demo</button>
+    <p class="small muted" style="margin-top:10px">All data is mock data. No backend, no payments.</p>`;
+  $("#pToggleStep").textContent = `Step ${st + 1} of ${STEPS.length} · ${STEPS[st].text}`;
+}
+let hlSel = null;
+function goStep(i, scroll){
+  S.step = Math.max(0, Math.min(STEPS.length - 1, i));
+  const s = STEPS[S.step], g = s.go;
+  if (g.mode) S.mode = g.mode;
+  S.view = g.view;
+  if (g.screen) S.screen = g.screen;
+  S.sheet = g.sheet ? Object.assign({}, g.sheet) : null;
+  hlSel = s.target;
+  render(true);
+  if (scroll !== false){
+    requestAnimationFrame(() => {
+      const el = document.querySelector(s.target);
+      if (!el) return;
+      const box = el.closest("#sheet") ? el.closest(".sh-body") : el.closest("#scroller") || $("#stage");
+      if (s.top){ box.scrollTop = 0; return; }
+      const r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+      box.scrollTo({ top: box.scrollTop + r.top - b.top - b.height / 2 + r.height / 2, behavior:"smooth" });
+    });
+  }
+  if (s.convert) later(kickConvert, 450);
+}
+
+/* ================= Render ================= */
+function render(screenChanged){
+  // view switch
+  document.querySelectorAll('[data-a="view"]').forEach(b => { if (b.closest(".seg")) b.setAttribute("aria-pressed", b.dataset.v === S.view); });
+  $("#phone").hidden = S.view !== "app";
+  const dash = $("#dash");
+  dash.hidden = S.view === "app";
+  if (S.view === "insights") dash.innerHTML = dashInsights();
+  if (S.view === "econ"){
+    const keep = $("#cUsers") ? [$("#cUsers").value, $("#cBits").value] : null;
+    const prevTop = $("#stage").scrollTop;
+    dash.innerHTML = dashEcon();
+    if (keep){ $("#cUsers").value = keep[0]; $("#cBits").value = keep[1]; $("#stage").scrollTop = prevTop; }
+    updateCalc();
+  }
+
+  // phone chrome
+  $("#chipText").textContent = `Bits ${S.bits} · Bucks ${num(bucks())}`;
+  document.querySelectorAll('[data-a="mode"]').forEach(b => { if (b.closest(".seg")) b.setAttribute("aria-pressed", b.dataset.m === S.mode); });
+  $("#tabs").innerHTML = TABS.map(([id, label, ico]) => `<button data-a="tab" data-s="${id}" ${S.screen === id ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" aria-hidden="true">${ico}</svg>${label}</button>`).join("");
+
+  // keep inputs + focus across re-render
+  const kept = {};
+  document.querySelectorAll("#screen [data-keep], #sheet [data-keep]").forEach(el => { kept[el.id] = el.value; });
+  const fid = document.activeElement && document.activeElement.id;
+  const sc = $("#scroller"), top = sc.scrollTop;
+  const fn = { product:screenProduct, circle:screenCircle, trial:screenTrial, buzz:screenBuzz, wallet:screenWallet }[S.screen];
+  $("#screen").innerHTML = fn();
+  $("#screen").className = screenChanged ? "screen-anim" : "";
+  const sheet = $("#sheet");
+  const wasOpen = sheet.classList.contains("show");
+  if (S.sheet){ sheet.innerHTML = sheetHtml(); sheet.classList.add("show"); $("#backdrop").classList.add("show"); }
+  else { sheet.classList.remove("show"); $("#backdrop").classList.remove("show"); }
+  Object.keys(kept).forEach(id => { const el = document.getElementById(id); if (el) el.value = kept[id]; });
+  if (screenChanged) sc.scrollTop = 0; else sc.scrollTop = top;
+  if (fid){ const f = document.getElementById(fid); if (f && f !== document.body) f.focus({ preventScroll:true }); }
+  if (S.sheet && !wasOpen) setTimeout(() => { const c = sheet.querySelector("textarea, .btn"); if (c && !hlSel) c.focus({ preventScroll:true }); }, 60);
+
+  // highlight
+  document.querySelectorAll(".hl").forEach(e => e.classList.remove("hl"));
+  if (hlSel){ const h = document.querySelector(hlSel); if (h) h.classList.add("hl"); }
+
+  updateRing();
+  if (S.screen === "wallet" && S.convertKick && S.view === "app"){ S.convertKick = false; setTimeout(kickConvert, 60); }
+  renderPanel();
+}
+function kickConvert(){ const c = $("#convert"); if (!c) return; c.classList.remove("play"); void c.offsetWidth; c.classList.add("play"); }
+
+/* ================= Verified view ================= */
+function updateRing(){
+  const fg = $("#ringFg"), txt = $("#ringText");
+  if (!fg) return;
+  const p = S.viewDone ? 1 : Math.min(1, S.viewTime / 20) * (S.reachedReviews ? 1 : .9);
+  fg.setAttribute("stroke-dashoffset", (100.5 * (1 - p)).toFixed(1));
+  txt.innerHTML = S.viewDone ? `<b style="color:var(--teal-ink)">✓ Verified view</b> · +1 Smytten Bit` :
+    `<b>Verified view</b> · ${Math.min(20, S.viewTime)}s / 20s · ${S.reachedReviews ? "✓ reviews seen" : "scroll to reviews"}`;
+}
+function checkReviews(){
+  if (S.screen !== "product" || S.reachedReviews) return;
+  const h = $("#reviewsHead"), sc = $("#scroller");
+  if (!h) return;
+  if (h.getBoundingClientRect().top < sc.getBoundingClientRect().bottom - 60){ S.reachedReviews = true; updateRing(); maybeView(); }
+}
+function maybeView(){
+  if (S.viewDone || S.viewTime < 20 || !S.reachedReviews) return;
+  S.viewDone = true;
+  act("view", { key:"view:p1", el:$("#ringWrap") });
+}
+setInterval(() => {
+  if (S.view === "app" && S.screen === "product" && !S.viewDone && !document.hidden){ S.viewTime++; updateRing(); maybeView(); }
+}, 1000);
+setInterval(() => {
+  S.viewers = Math.max(31, Math.min(44, S.viewers + [-2,-1,1,1,2][Math.floor(Math.random() * 5)]));
+  const el = $("#liveCount");
+  if (el){ el.textContent = S.viewers; el.classList.add("tick"); setTimeout(() => el.classList.remove("tick"), 220); }
+}, 3500);
+$("#scroller").addEventListener("scroll", checkReviews, { passive:true });
+// Overflow-hidden frames must never scroll (focus or scrollIntoView can nudge them).
+[".screen-wrap", "#presenter", ".layout"].forEach(sel => { const el = $(sel); el.addEventListener("scroll", () => { el.scrollTop = 0; el.scrollLeft = 0; }); });
+window.addEventListener("scroll", () => { if (window.scrollY) window.scrollTo(0, 0); });
+
+/* ================= Handlers ================= */
+const val = id => { const e = document.getElementById(id); return e ? e.value.trim() : ""; };
+const H = {
+  view(t){ S.view = t.dataset.v; hlSel = null; render(true); $("#stage").scrollTop = 0; },
+  tab(t){ S.screen = t.dataset.s; S.sheet = null; hlSel = null; S.view = "app"; render(true); setTimeout(checkReviews, 50); },
+  mode(t){ S.mode = t.dataset.m; render(); toast("info", S.mode === "trier" ? "Viewing as a verified trier" : "Viewing as a shopper", S.mode === "trier" ? "Answering, Buyers' Circle posting and after-trial actions are unlocked." : "Trier-only actions are locked."); },
+  sheet(t){ S.sheet = { t:t.dataset.t }; hlSel = null; render(); },
+  "sheet-close"(){ S.sheet = null; render(); },
+  "convo-start"(){
+    S.screen = "circle";
+    if (S.mode === "trier") S.sheet = { t:"convo" };
+    else toast("info", "Buyers' Circle", "Everyone can read. Only verified buyers can start a conversation.");
+    render(true);
+  },
+  doubt(t){
+    const i = +t.dataset.i;
+    if (S.doubtPicked >= 0){ toast("info", "Already counted", "Tap a doubt counts one tap per product."); return; }
+    S.doubtPicked = i; S.doubtTaps[i]++;
+    act("doubt", { key:"doubt:p1", el:t });
+  },
+  compare(t){
+    const side = t.dataset.side;
+    act("compare", { key:"compare:p1", el:t, onResolve(){ S.tot.picked = side; if (side === "a") S.tot.a++; else S.tot.b++; const tot = S.tot.a + S.tot.b; S.tot.a = Math.round(S.tot.a / tot * 100); S.tot.b = 100 - S.tot.a; } });
+  },
+  helpful(t){ act("helpful", { key:"helpful:" + t.dataset.r, el:t }) || render(); },
+  same(t){ act("same", { key:"same:" + t.dataset.r, el:t }) || render(); },
+  filter(t){ const f = t.dataset.f; S.filters = S.filters.includes(f) ? S.filters.filter(x => x !== f) : S.filters.concat(f); render(); },
+  "reply-open"(t){ if (S.replies[t.dataset.r]){ toast("info","Already replied","One reply per review counts."); return; } S.sheet = { t:"reply", r:t.dataset.r }; render(); },
+  reply(t){
+    const r = S.reviews.find(x => x.id === t.dataset.r), text = val("repIn") || "Thanks for sharing!";
+    act("replyReview", { key:"reply:" + r.id, onPending(){ S.replies[r.id] = { text, status:"pending" }; S.sheet = null; },
+      onResolve(){ S.replies[r.id].status = "done"; S.replies[r.id].back = "Yes! Gone by day 4. Go slow at first."; }, resolved: r.who + " replied" });
+  },
+  share(t){
+    act("share", { key:"share:p1", onPending(){ S.share = "pending"; }, onResolve(){ S.share = "opened"; }, resolved:"Priya opened your link" });
+  },
+  purchase(){
+    act("purchase", { key:"purchase:p1", onPending(){ S.purchase = "pending"; }, onResolve(){ S.purchase = "done"; }, resolved:"Order delivered" });
+  },
+  bring(t){ act("bring", { key:"bring:p2", el:t, onResolve(){ S.bring = true; } }); },
+  welcome(){ act("welcome", { key:"welcome:meera", onPending(){ S.welcome = "pending"; }, onResolve(){ S.welcome = "replied"; }, resolved:"Meera replied" }); },
+  hi(t){
+    const p = PEOPLE.find(x => x.id === t.dataset.p);
+    if (hlSel === "#hi-" + p.id) hlSel = null;
+    act("hi", { key:"hi:" + p.id, onPending(){ S.people[p.id] = "pending"; }, onResolve(){ S.people[p.id] = "replied"; }, resolved:p.name + " replied" });
+  },
+  ask(){
+    const text = val("askIn");
+    if (!text){ toast("info","Type a question first",""); return; }
+    const q = { id:"q" + Date.now(), text, mine:true, status:"pending", answers:[], count:1 };
+    act("ask", { onPending(){ S.questions.unshift(q); S.sheet = null; if (hlSel === "#askBtn") hlSel = null; }, onResolve(){ q.status = "approved"; }, resolved:"Question approved" });
+  },
+  "answer-open"(t){ S.sheet = { t:"answer", q:t.dataset.q }; render(); },
+  answer(t){
+    const q = S.questions.find(x => x.id === t.dataset.q), text = val("ansIn") || "It worked well for me.";
+    const ans = { who:"You", tried:true, text, status:"pending" };
+    act("answer", { key:"answer:" + q.id, onPending(){ q.answers.push(ans); q.answered = true; S.sheet = null; }, onResolve(){ ans.status = "ok"; }, resolved:"Answer approved" });
+  },
+  "convo"(){
+    const text = val("convoIn") || "How's it working for you?";
+    act("convo", { onPending(){ S.myConvo = { text, status:"pending" }; S.sheet = null; }, onResolve(){ S.myConvo.status = "done"; }, resolved:"Rohan replied" });
+  },
+  "tip-photo"(){ S.sheet.photo = !S.sheet.photo; render(); },
+  tip(){
+    if (S.mode !== "trier"){ act("tip"); return; }
+    if (!S.sheet.photo){ toast("info", "Add a photo first", "Tips with a photo count as Heavy actions."); const b = $('[data-a="tip-photo"]'); if (b) b.focus(); return; }
+    const t = { text: val("tipIn") || "My routine", status:"pending" };
+    act("tip", { onPending(){ S.tips.unshift(t); S.sheet = null; if (hlSel === "#tipBtn") hlSel = null; }, onResolve(){ t.status = "done"; }, resolved:"Photo passed moderation" });
+  },
+  prompt(t){
+    const text = val("promptIn");
+    if (S.mode === "trier" && !text){ toast("info","Write your answer first",""); return; }
+    act("prompt", { key:"prompt", el:t, onResolve(){ S.circlePrompt.push({ who:"You", text, mine:true }); } });
+  },
+  "thread-reply"(t){
+    const th = S.threads.find(x => x.id === t.dataset.t), text = val("tin-" + th.id);
+    if (S.mode === "trier" && !text){ toast("info","Write a reply first",""); return; }
+    act("replyBuyer", { el:t, onResolve(){ th.replies.push({ who:"You", text }); const i = document.getElementById("tin-" + th.id); if (i) i.value = ""; } });
+  },
+  day1(t){ const text = val("day1In") || "Feels light."; act("day1", { key:"day1:p1", el:t, onResolve(){ S.trial.impression = text; } }); },
+  fullsize(t){ const v = t.dataset.v; act("fullsize", { key:"fullsize:p1", el:t, onResolve(){ S.trial.intent = v; } }); },
+  star(t){ if (S.trial.attrsSent) return; S.trial.stars = +t.dataset.n; render(); },
+  attrs(t){ act("attrs", { key:"attrs:p1", el:t, onResolve(){ S.trial.attrsSent = true; } }); },
+  "written-review"(t){ S.trial.review = true; existing("Written review", 0, t); },
+  "photo-review"(){ act("photoReview", { key:"photo:p1", onPending(){ S.trial.photo = "pending"; }, onResolve(){ S.trial.photo = "done"; }, resolved:"Photo passed moderation" }); },
+  recommend(){ const sk = val("recSkin"); act("recommend", { key:"rec:p1", onPending(){ S.trial.recommend = "pending"; }, onResolve(){ S.trial.recommend = "done"; }, resolved:"Kavya (" + sk + ") opened your link" }); },
+  ff14(){ S.trial.day = 14; render(); toast("info", "Fast-forwarded to Day 14", "Day-14 follow-up is now open."); },
+  day14(t){ const text = val("day14In") || "Two weeks in."; act("day14", { key:"day14:p1", el:t, onResolve(){ S.trial.day14 = text; } }); },
+  play(){
+    const b = S.buzz; if (b.playing) return;
+    b.playing = true; render();
+    const iv = setInterval(() => {
+      b.progress = Math.min(100, b.progress + 5);
+      const p = $("#vprog"); if (p) p.style.width = b.progress + "%";
+      if (b.progress >= 85){ clearInterval(iv); b.playing = false; render(); }
+    }, 160);
+    timers.push(iv);
+  },
+  "save-video"(t){
+    if (S.buzz.progress < 75){ toast("pending", "Not counted yet", "Counts when: you've watched most of the video"); return; }
+    act("saveVideo", { key:"save:v1", el:t, onResolve(){ S.buzz.saved = true; } });
+  },
+  "helpful-video"(t){
+    if (S.buzz.progress < 75){ toast("pending", "Not counted yet", "Counts when: you've watched most of the video"); return; }
+    act("helpfulVideo", { key:"helpful:v1", el:t, onResolve(){ S.buzz.helpful = true; } });
+  },
+  "ask-video"(){
+    const text = val("vqIn"); if (!text){ toast("info","Type a question first",""); return; }
+    const q = { text, status:"pending" };
+    act("askVideo", { onPending(){ S.buzz.questions.push(q); const i = $("#vqIn"); if (i) i.value = ""; }, onResolve(){ q.status = "ok"; }, resolved:"Question approved" });
+  },
+  "reply-video"(t){ S.buzz.replyVideo = true; existing("Buzz Hub reply video", 50, t); },
+  comment(t){ const c = val("vcIn"); if (!c){ toast("info","Type a comment first",""); return; } S.buzz.comments.push(c); $("#vcIn").value = ""; existing("Comment", 0, t); },
+  step(t){ goStep(+t.dataset.n); },
+  next(){ if (S.step < STEPS.length - 1) goStep(S.step + 1); else { hlSel = null; render(); toast("info","Walkthrough complete","Open Smytten economics, or Reset demo to run it again."); } },
+  prev(){ goStep(S.step - 1); },
+  reset(){
+    timers.forEach(t => { clearTimeout(t); clearInterval(t); }); timers = [];
+    $("#toasts").innerHTML = "";
+    const open = S.panelOpen;
+    S = seed(); S.panelOpen = open;
+    goStep(0);
+    toast("info", "Demo reset", "All Bits and state cleared.");
+  },
+  "panel-toggle"(t){ S.panelOpen = !S.panelOpen; $("#presenter").classList.toggle("open", S.panelOpen); t.setAttribute("aria-expanded", S.panelOpen); }
+};
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-a]");
+  if (!t || t.disabled) return;
+  const h = H[t.dataset.a];
+  if (h){ e.preventDefault(); h(t, e); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.in === "attr"){ S.trial.attrs[t.dataset.k] = +t.value; const l = t.previousElementSibling; if (l) l.lastElementChild.textContent = t.value + " / 5"; }
+  if (t.dataset.in === "calc") updateCalc();
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && S.sheet){ S.sheet = null; render(); }
+  if (e.key === "Enter" && e.target.tagName === "INPUT" && e.target.id){
+    const btn = e.target.parentElement && e.target.parentElement.querySelector("[data-a]");
+    if (btn){ e.preventDefault(); btn.click(); }
+  }
+});
+
+goStep(0, false);
+})();
+</script>
+</body>
+</html>
